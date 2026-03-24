@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>SwitchBot Icon Generator</title>
+  <style>
+    body {
+      background: #0d0f1a;
+      color: #e2e8f0;
+      font-family: -apple-system, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px;
+      gap: 24px;
+    }
+    h1 { font-size: 20px; color: #a5b4fc; }
+    p  { color: #94a3b8; font-size: 13px; text-align: center; max-width: 480px; line-height: 1.6; }
+    .canvases { display: flex; gap: 20px; align-items: flex-end; flex-wrap: wrap; justify-content: center; }
+    .canvas-wrap { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+    .label { font-size: 12px; color: #64748b; }
+    canvas { border-radius: 20%; border: 1px solid rgba(255,255,255,0.1); }
+    .btn {
+      padding: 10px 24px;
+      background: #6366f1;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn:hover { background: #818cf8; }
+    .note {
+      background: rgba(99,102,241,0.1);
+      border: 1px solid rgba(99,102,241,0.25);
+      border-radius: 8px;
+      padding: 14px 20px;
+      font-size: 12.5px;
+      color: #a5b4fc;
+      max-width: 520px;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+  <h1>SwitchBot Icon Generator</h1>
+  <p>下のボタンをクリックすると、拡張機能用のPNGアイコンが生成されてダウンロードされます。<br>ダウンロードされたファイルをこの <code>icons/</code> フォルダに配置してください。</p>
+
+  <div class="canvases">
+    <div class="canvas-wrap">
+      <canvas id="c128" width="128" height="128"></canvas>
+      <span class="label">128×128</span>
+    </div>
+    <div class="canvas-wrap">
+      <canvas id="c48" width="48" height="48"></canvas>
+      <span class="label">48×48</span>
+    </div>
+    <div class="canvas-wrap">
+      <canvas id="c32" width="32" height="32"></canvas>
+      <span class="label">32×32</span>
+    </div>
+    <div class="canvas-wrap">
+      <canvas id="c16" width="16" height="16"></canvas>
+      <span class="label">16×16</span>
+    </div>
+  </div>
+
+  <button class="btn" onclick="downloadAll()">全サイズをダウンロード</button>
+
+  <div class="note">
+    ダウンロード後、<strong>icon16.png, icon32.png, icon48.png, icon128.png</strong> を<br>
+    <code>switchbot-extension/icons/</code> フォルダに配置してください。
+  </div>
+
+  <script>
+    function drawIcon(canvas) {
+      const size = canvas.width;
+      const ctx = canvas.getContext('2d');
+      const cx = size / 2;
+      const r = size / 2;
+
+      // Background gradient circle
+      const grad = ctx.createRadialGradient(cx * 0.75, cx * 0.6, 0, cx, cx, r);
+      grad.addColorStop(0, '#818cf8');
+      grad.addColorStop(0.45, '#6366f1');
+      grad.addColorStop(1, '#312e81');
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(cx, cx, r, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Inner glow circle
+      const innerGrad = ctx.createRadialGradient(cx, cx, 0, cx, cx, r * 0.65);
+      innerGrad.addColorStop(0, 'rgba(255,255,255,0.12)');
+      innerGrad.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.fillStyle = innerGrad;
+      ctx.beginPath();
+      ctx.arc(cx, cx, r * 0.65, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Power button icon (white)
+      ctx.strokeStyle = 'rgba(255,255,255,0.95)';
+      ctx.lineCap = 'round';
+
+      // Arc (bottom ~240 degrees)
+      const arcR = r * 0.36;
+      ctx.lineWidth = size * 0.092;
+      ctx.beginPath();
+      ctx.arc(cx, cx + r * 0.06, arcR, Math.PI * 0.25, Math.PI * 0.75, false);
+      ctx.stroke();
+
+      // Vertical line
+      ctx.lineWidth = size * 0.085;
+      ctx.beginPath();
+      ctx.moveTo(cx, cx - arcR * 0.18);
+      ctx.lineTo(cx, cx - arcR * 1.12);
+      ctx.stroke();
+
+      // Highlight shine
+      const shine = ctx.createLinearGradient(cx - r * 0.4, r * 0.15, cx + r * 0.4, r * 0.6);
+      shine.addColorStop(0, 'rgba(255,255,255,0.18)');
+      shine.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.fillStyle = shine;
+      ctx.beginPath();
+      ctx.ellipse(cx, r * 0.38, r * 0.42, r * 0.22, -Math.PI * 0.12, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    const sizes = [
+      { id: 'c128', name: 'icon128.png' },
+      { id: 'c48',  name: 'icon48.png'  },
+      { id: 'c32',  name: 'icon32.png'  },
+      { id: 'c16',  name: 'icon16.png'  },
+    ];
+
+    sizes.forEach(({ id }) => {
+      drawIcon(document.getElementById(id));
+    });
+
+    function downloadAll() {
+      sizes.forEach(({ id, name }) => {
+        const canvas = document.getElementById(id);
+        const a = document.createElement('a');
+        a.download = name;
+        a.href = canvas.toDataURL('image/png');
+        a.click();
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SwitchBot Controller - 設定</title>
+  <link rel="stylesheet" href="options.css" />
+</head>
+<body>
+  <div class="page">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="10" fill="url(#optLogoGrad)"/>
+            <path d="M12 6v2M12 16v2M8 12H6M18 12h-2" stroke="white" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="12" cy="12" r="3" fill="white"/>
+            <defs>
+              <linearGradient id="optLogoGrad" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#6366f1"/>
+                <stop offset="100%" stop-color="#4f46e5"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <div class="logo-text-wrap">
+          <span class="logo-name">SwitchBot</span>
+          <span class="logo-sub">Controller</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <button class="nav-item active" data-section="credentials">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <rect x="3" y="11" width="18" height="11" rx="2"/>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+          API認証情報
+        </button>
+        <button class="nav-item" data-section="about">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          このアプリについて
+        </button>
+      </nav>
+    </aside>
+
+    <!-- Main content -->
+    <main class="main">
+
+      <!-- Credentials section -->
+      <section class="section active" id="section-credentials">
+        <div class="section-header">
+          <h1 class="section-title">API認証情報</h1>
+          <p class="section-desc">SwitchBot APIのトークンとシークレットを設定してください。</p>
+        </div>
+
+        <!-- How to get credentials -->
+        <div class="info-card">
+          <div class="info-card-header">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="8" x2="12" y2="12"/>
+              <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            APIキーの取得方法
+          </div>
+          <ol class="info-steps">
+            <li>SwitchBotアプリを開く（iOS / Android）</li>
+            <li>右下の <strong>プロフィール</strong> タブをタップ</li>
+            <li><strong>設定</strong>（⚙️）→ <strong>アプリバージョン</strong> を10回タップ</li>
+            <li><strong>開発者向けオプション</strong> が表示されます</li>
+            <li><strong>トークンをコピー</strong> と <strong>シークレットをコピー</strong> を実行</li>
+          </ol>
+        </div>
+
+        <!-- Form -->
+        <form class="credentials-form" id="credentialsForm" autocomplete="off">
+
+          <div class="form-group">
+            <label class="form-label" for="tokenInput">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
+                <line x1="7" y1="7" x2="7.01" y2="7"/>
+              </svg>
+              APIトークン
+            </label>
+            <div class="input-wrap">
+              <input
+                type="password"
+                id="tokenInput"
+                class="form-input"
+                placeholder="トークンを貼り付け..."
+                autocomplete="new-password"
+                spellcheck="false"
+              />
+              <button type="button" class="input-eye" data-target="tokenInput" title="表示/非表示">
+                <svg class="eye-show" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg class="eye-hide hidden" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+              </button>
+            </div>
+            <span class="form-hint" id="tokenHint"></span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="secretInput">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="11" width="18" height="11" rx="2"/>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              </svg>
+              クライアントシークレット
+            </label>
+            <div class="input-wrap">
+              <input
+                type="password"
+                id="secretInput"
+                class="form-input"
+                placeholder="シークレットを貼り付け..."
+                autocomplete="new-password"
+                spellcheck="false"
+              />
+              <button type="button" class="input-eye" data-target="secretInput" title="表示/非表示">
+                <svg class="eye-show" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg class="eye-hide hidden" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+              </button>
+            </div>
+            <span class="form-hint" id="secretHint"></span>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn btn-test" id="testBtn">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              接続テスト
+            </button>
+            <button type="submit" class="btn btn-save" id="saveBtn">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+              保存する
+            </button>
+          </div>
+
+        </form>
+
+        <!-- Test result -->
+        <div class="test-result hidden" id="testResult">
+          <div class="test-result-inner" id="testResultInner"></div>
+        </div>
+
+        <!-- Danger zone -->
+        <div class="danger-zone">
+          <h3 class="danger-title">データ管理</h3>
+          <div class="danger-actions">
+            <button type="button" class="btn btn-danger" id="clearBtn">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+              認証情報を削除
+            </button>
+            <span class="danger-desc">保存されたAPIトークンとシークレットを削除します</span>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- About section -->
+      <section class="section" id="section-about">
+        <div class="section-header">
+          <h1 class="section-title">このアプリについて</h1>
+        </div>
+
+        <div class="about-card">
+          <div class="about-logo">
+            <div class="about-logo-icon">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="12" r="10" fill="url(#aboutGrad)"/>
+                <path d="M12 6v2M12 16v2M8 12H6M18 12h-2" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                <circle cx="12" cy="12" r="3" fill="white"/>
+                <defs>
+                  <linearGradient id="aboutGrad" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
+                    <stop offset="0%" stop-color="#6366f1"/>
+                    <stop offset="100%" stop-color="#4f46e5"/>
+                  </linearGradient>
+                </defs>
+              </svg>
+            </div>
+            <div>
+              <div class="about-app-name">SwitchBot Controller</div>
+              <div class="about-version">Version 1.0.0</div>
+            </div>
+          </div>
+          <p class="about-desc">
+            SwitchBot APIを使用してスマートホームデバイスをブラウザから直接操作・監視できる Chrome拡張機能です。
+          </p>
+        </div>
+
+        <div class="feature-grid">
+          <div class="feature-item">
+            <div class="feature-icon">🏠</div>
+            <div>
+              <div class="feature-title">多様なデバイス対応</div>
+              <div class="feature-desc">照明、エアコン、カーテン、ロック、センサーなど20種類以上</div>
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon">⚡</div>
+            <div>
+              <div class="feature-title">リアルタイム操作</div>
+              <div class="feature-desc">ポップアップからワンクリックで即座にデバイスを操作</div>
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon">🔒</div>
+            <div>
+              <div class="feature-title">セキュア</div>
+              <div class="feature-desc">APIキーはローカルに暗号化保存。外部には送信しません</div>
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon">📊</div>
+            <div>
+              <div class="feature-title">センサー監視</div>
+              <div class="feature-desc">温度・湿度・動体検知などをリアルタイムで確認</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="api-info">
+          <div class="api-info-title">使用API</div>
+          <div class="api-info-body">
+            <span class="api-badge">SwitchBot API v1.1</span>
+            <span class="api-limit">レート制限: 10,000回/日</span>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script src="options.js"></script>
+</body>
+</html>

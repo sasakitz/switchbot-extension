@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <defs>
+    <radialGradient id="bg" cx="40%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#818cf8"/>
+      <stop offset="45%" stop-color="#6366f1"/>
+      <stop offset="100%" stop-color="#312e81"/>
+    </radialGradient>
+    <radialGradient id="inner" cx="50%" cy="50%" r="65%">
+      <stop offset="0%" stop-color="rgba(255,255,255,0.12)"/>
+      <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
+    </radialGradient>
+    <linearGradient id="shine" x1="20%" y1="10%" x2="80%" y2="50%">
+      <stop offset="0%" stop-color="rgba(255,255,255,0.18)"/>
+      <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background circle -->
+  <circle cx="64" cy="64" r="64" fill="url(#bg)"/>
+
+  <!-- Inner glow -->
+  <circle cx="64" cy="64" r="42" fill="url(#inner)"/>
+
+  <!-- Power icon - arc -->
+  <path d="M 40 72 A 28 28 0 1 0 88 72"
+        fill="none"
+        stroke="rgba(255,255,255,0.95)"
+        stroke-width="11"
+        stroke-linecap="round"/>
+
+  <!-- Power icon - vertical line -->
+  <line x1="64" y1="38" x2="64" y2="64"
+        stroke="rgba(255,255,255,0.95)"
+        stroke-width="11"
+        stroke-linecap="round"/>
+
+  <!-- Shine highlight -->
+  <ellipse cx="60" cy="32" rx="26" ry="14"
+           transform="rotate(-10, 60, 32)"
+           fill="url(#shine)"/>
+</svg>

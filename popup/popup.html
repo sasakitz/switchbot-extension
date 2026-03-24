@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SwitchBot Controller</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <div class="app">
+
+    <!-- Header -->
+    <header class="header">
+      <div class="header-logo">
+        <div class="logo-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="10" fill="url(#logoGrad)"/>
+            <path d="M12 6v2M12 16v2M8 12H6M18 12h-2" stroke="white" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="12" cy="12" r="3" fill="white"/>
+            <defs>
+              <linearGradient id="logoGrad" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#6366f1"/>
+                <stop offset="100%" stop-color="#4f46e5"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <span class="logo-text">SwitchBot</span>
+      </div>
+      <div class="header-actions">
+        <button class="icon-btn" id="refreshBtn" title="更新">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+            <path d="M1 4v6h6M23 20v-6h-6"/>
+            <path d="M20.49 9A9 9 0 1 0 5.64 5.64L1 10M3.51 15a9 9 0 0 0 14.85 3.36L23 14"/>
+          </svg>
+        </button>
+        <button class="icon-btn" id="settingsBtn" title="設定を開く">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Search -->
+    <div class="search-wrap">
+      <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <circle cx="11" cy="11" r="8"/>
+        <path d="M21 21l-4.35-4.35"/>
+      </svg>
+      <input type="text" id="searchInput" class="search-input" placeholder="デバイスを検索..." />
+      <button class="search-clear hidden" id="searchClear">✕</button>
+    </div>
+
+    <!-- Filter tabs -->
+    <div class="filter-tabs" id="filterTabs">
+      <button class="tab active" data-filter="all">すべて</button>
+      <button class="tab" data-filter="light">ライト</button>
+      <button class="tab" data-filter="climate">空調</button>
+      <button class="tab" data-filter="security">セキュリティ</button>
+      <button class="tab" data-filter="curtain">カーテン</button>
+      <button class="tab" data-filter="sensor">センサー</button>
+      <button class="tab" data-filter="media">メディア</button>
+    </div>
+
+    <!-- Content area -->
+    <div class="content" id="content">
+
+      <!-- Loading -->
+      <div class="state-view" id="loadingState">
+        <div class="spinner"></div>
+        <p class="state-text">デバイスを読み込み中...</p>
+      </div>
+
+      <!-- Error -->
+      <div class="state-view hidden" id="errorState">
+        <div class="state-icon error-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+        </div>
+        <p class="state-text" id="errorMessage">エラーが発生しました</p>
+        <div class="state-actions">
+          <button class="btn-action btn-primary" id="retryBtn">再試行</button>
+          <button class="btn-action btn-secondary" id="openSettingsFromError">設定を開く</button>
+        </div>
+      </div>
+
+      <!-- Empty -->
+      <div class="state-view hidden" id="emptyState">
+        <div class="state-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="2" y="3" width="20" height="14" rx="2"/>
+            <path d="M8 21h8M12 17v4"/>
+          </svg>
+        </div>
+        <p class="state-text">デバイスが見つかりません</p>
+        <p class="state-sub">SwitchBotアカウントにデバイスを登録してください</p>
+        <button class="btn-action btn-primary" id="openSettingsFromEmpty">設定を開く</button>
+      </div>
+
+      <!-- Device grid -->
+      <div class="device-grid hidden" id="deviceGrid"></div>
+
+    </div>
+
+    <!-- Footer -->
+    <div class="footer" id="footer">
+      <span class="footer-count" id="deviceCount"></span>
+      <span class="footer-updated" id="lastUpdated"></span>
+    </div>
+
+  </div>
+
+  <script type="module" src="popup.js"></script>
+</body>
+</html>
