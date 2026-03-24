@@ -14,7 +14,7 @@
       padding: 40px;
       gap: 24px;
     }
-    h1 { font-size: 20px; color: #a5b4fc; }
+    h1 { font-size: 20px; color: #34d399; }
     p  { color: #94a3b8; font-size: 13px; text-align: center; max-width: 480px; line-height: 1.6; }
     .canvases { display: flex; gap: 20px; align-items: flex-end; flex-wrap: wrap; justify-content: center; }
     .canvas-wrap { display: flex; flex-direction: column; align-items: center; gap: 8px; }
@@ -22,7 +22,7 @@
     canvas { border-radius: 20%; border: 1px solid rgba(255,255,255,0.1); }
     .btn {
       padding: 10px 24px;
-      background: #6366f1;
+      background: #059669;
       color: white;
       border: none;
       border-radius: 8px;
@@ -30,14 +30,14 @@
       font-weight: 600;
       cursor: pointer;
     }
-    .btn:hover { background: #818cf8; }
+    .btn:hover { background: #34d399; }
     .note {
-      background: rgba(99,102,241,0.1);
-      border: 1px solid rgba(99,102,241,0.25);
+      background: rgba(5,150,105,0.1);
+      border: 1px solid rgba(5,150,105,0.25);
       border-radius: 8px;
       padding: 14px 20px;
       font-size: 12.5px;
-      color: #a5b4fc;
+      color: #34d399;
       max-width: 520px;
       line-height: 1.6;
     }
@@ -78,52 +78,52 @@
       const size = canvas.width;
       const ctx = canvas.getContext('2d');
       const cx = size / 2;
-      const r = size / 2;
+      const cy = size / 2;
 
-      // Background gradient circle
-      const grad = ctx.createRadialGradient(cx * 0.75, cx * 0.6, 0, cx, cx, r);
-      grad.addColorStop(0, '#818cf8');
-      grad.addColorStop(0.45, '#6366f1');
-      grad.addColorStop(1, '#312e81');
+      // Toggle track dimensions
+      const trackW = size * 0.82;
+      const trackH = size * 0.50;
+      const trackX = (size - trackW) / 2;
+      const trackY = (size - trackH) / 2;
+      const trackR = trackH / 2; // fully-rounded pill
+
+      // Draw track with horizontal green gradient
+      const grad = ctx.createLinearGradient(trackX, 0, trackX + trackW, 0);
+      grad.addColorStop(0, '#34d399');
+      grad.addColorStop(1, '#059669');
       ctx.fillStyle = grad;
       ctx.beginPath();
-      ctx.arc(cx, cx, r, 0, Math.PI * 2);
+      ctx.roundRect(trackX, trackY, trackW, trackH, trackR);
       ctx.fill();
 
-      // Inner glow circle
-      const innerGrad = ctx.createRadialGradient(cx, cx, 0, cx, cx, r * 0.65);
-      innerGrad.addColorStop(0, 'rgba(255,255,255,0.12)');
-      innerGrad.addColorStop(1, 'rgba(255,255,255,0)');
-      ctx.fillStyle = innerGrad;
+      // Top highlight on track
+      const highlight = ctx.createLinearGradient(0, trackY, 0, trackY + trackH * 0.5);
+      highlight.addColorStop(0, 'rgba(255,255,255,0.22)');
+      highlight.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.fillStyle = highlight;
       ctx.beginPath();
-      ctx.arc(cx, cx, r * 0.65, 0, Math.PI * 2);
+      ctx.roundRect(trackX, trackY, trackW, trackH, trackR);
       ctx.fill();
 
-      // Power button icon (white)
-      ctx.strokeStyle = 'rgba(255,255,255,0.95)';
-      ctx.lineCap = 'round';
-
-      // Arc (bottom ~240 degrees)
-      const arcR = r * 0.36;
-      ctx.lineWidth = size * 0.092;
+      // Knob shadow
+      const knobCx = trackX + trackW - trackR;
+      const knobCy = cy;
+      const knobR = trackR * 0.80;
+      ctx.save();
+      ctx.shadowColor = 'rgba(0,0,0,0.28)';
+      ctx.shadowBlur = size * 0.04;
+      ctx.shadowOffsetX = size * 0.025;
+      ctx.shadowOffsetY = size * 0.025;
+      ctx.fillStyle = 'white';
       ctx.beginPath();
-      ctx.arc(cx, cx + r * 0.06, arcR, Math.PI * 0.25, Math.PI * 0.75, false);
-      ctx.stroke();
+      ctx.arc(knobCx, knobCy, knobR, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
 
-      // Vertical line
-      ctx.lineWidth = size * 0.085;
+      // Knob (white circle, ON = right)
+      ctx.fillStyle = 'white';
       ctx.beginPath();
-      ctx.moveTo(cx, cx - arcR * 0.18);
-      ctx.lineTo(cx, cx - arcR * 1.12);
-      ctx.stroke();
-
-      // Highlight shine
-      const shine = ctx.createLinearGradient(cx - r * 0.4, r * 0.15, cx + r * 0.4, r * 0.6);
-      shine.addColorStop(0, 'rgba(255,255,255,0.18)');
-      shine.addColorStop(1, 'rgba(255,255,255,0)');
-      ctx.fillStyle = shine;
-      ctx.beginPath();
-      ctx.ellipse(cx, r * 0.38, r * 0.42, r * 0.22, -Math.PI * 0.12, 0, Math.PI * 2);
+      ctx.arc(knobCx, knobCy, knobR, 0, Math.PI * 2);
       ctx.fill();
     }
 
