@@ -6,46 +6,27 @@ function drawIcon(size) {
   const cx = size / 2;
   const cy = size / 2;
 
-  // Toggle track dimensions
-  const trackW = size * 0.82;
-  const trackH = size * 0.50;
+  // Background: rounded square, Material Indigo
+  const bgR = size * 0.22;
+  ctx.fillStyle = '#5C6BC0';
+  ctx.beginPath();
+  ctx.roundRect(0, 0, size, size, bgR);
+  ctx.fill();
+
+  // Toggle track (pill, white semi-transparent)
+  const trackW = size * 0.75;
+  const trackH = size * 0.31;
   const trackX = (size - trackW) / 2;
   const trackY = (size - trackH) / 2;
   const trackR = trackH / 2;
-
-  // Green gradient track
-  const grad = ctx.createLinearGradient(trackX, 0, trackX + trackW, 0);
-  grad.addColorStop(0, '#34d399');
-  grad.addColorStop(1, '#059669');
-  ctx.fillStyle = grad;
+  ctx.fillStyle = 'rgba(255,255,255,0.30)';
   ctx.beginPath();
   ctx.roundRect(trackX, trackY, trackW, trackH, trackR);
   ctx.fill();
 
-  // Top highlight
-  const highlight = ctx.createLinearGradient(0, trackY, 0, trackY + trackH * 0.5);
-  highlight.addColorStop(0, 'rgba(255,255,255,0.22)');
-  highlight.addColorStop(1, 'rgba(255,255,255,0)');
-  ctx.fillStyle = highlight;
-  ctx.beginPath();
-  ctx.roundRect(trackX, trackY, trackW, trackH, trackR);
-  ctx.fill();
-
-  // Knob shadow
+  // Toggle knob (ON = right, white circle)
+  const knobR = trackH * 0.78;
   const knobCx = trackX + trackW - trackR;
-  const knobR = trackR * 0.80;
-  ctx.save();
-  ctx.shadowColor = 'rgba(0,0,0,0.28)';
-  ctx.shadowBlur = size * 0.04;
-  ctx.shadowOffsetX = size * 0.025;
-  ctx.shadowOffsetY = size * 0.025;
-  ctx.fillStyle = 'white';
-  ctx.beginPath();
-  ctx.arc(knobCx, cy, knobR, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.restore();
-
-  // White knob (ON = right)
   ctx.fillStyle = 'white';
   ctx.beginPath();
   ctx.arc(knobCx, cy, knobR, 0, Math.PI * 2);
