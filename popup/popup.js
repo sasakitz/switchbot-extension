@@ -1,5 +1,6 @@
 // popup.js - SwitchBot Controller popup logic
 import { getDevices, getDeviceStatus, sendCommand } from '../utils/api.js';
+import { browserAPI } from '../utils/browser.js';
 
 // =====================================================
 // Device config: icon, label, category, accent color
@@ -253,11 +254,11 @@ function setupEventListeners() {
   $('refreshBtn').addEventListener('click', () => loadDevices(true));
 
   $('settingsBtn').addEventListener('click', () => {
-    chrome.runtime.openOptionsPage();
+    browserAPI.runtime.openOptionsPage();
   });
 
-  $('openSettingsFromError').addEventListener('click', () => chrome.runtime.openOptionsPage());
-  $('openSettingsFromEmpty').addEventListener('click', () => chrome.runtime.openOptionsPage());
+  $('openSettingsFromError').addEventListener('click', () => browserAPI.runtime.openOptionsPage());
+  $('openSettingsFromEmpty').addEventListener('click', () => browserAPI.runtime.openOptionsPage());
   $('retryBtn').addEventListener('click', () => loadDevices());
 
   // Filter tabs
@@ -355,7 +356,7 @@ async function enrichWithStatus() {
 // =====================================================
 function getCached() {
   return new Promise((resolve) => {
-    chrome.storage.local.get(['device_cache'], (r) => {
+    browserAPI.storage.local.get(['device_cache'], (r) => {
       const cache = r.device_cache;
       if (!cache || Date.now() - cache.ts > 30000) {
         resolve(null);
@@ -368,7 +369,7 @@ function getCached() {
 
 function setCached(devices) {
   return new Promise((resolve) => {
-    chrome.storage.local.set({ device_cache: { devices, ts: Date.now() } }, resolve);
+    browserAPI.storage.local.set({ device_cache: { devices, ts: Date.now() } }, resolve);
   });
 }
 

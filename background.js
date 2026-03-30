@@ -1,4 +1,5 @@
 // Service Worker - SwitchBot Controller Extension
+import { browserAPI } from './utils/browser.js';
 
 function drawIcon(size) {
   const canvas = new OffscreenCanvas(size, size);
@@ -35,7 +36,7 @@ function drawIcon(size) {
   return ctx.getImageData(0, 0, size, size);
 }
 
-chrome.runtime.onInstalled.addListener(() => {
+browserAPI.runtime.onInstalled.addListener(() => {
   try {
     const imageData = {
       16: drawIcon(16),
@@ -43,13 +44,13 @@ chrome.runtime.onInstalled.addListener(() => {
       48: drawIcon(48),
       128: drawIcon(128),
     };
-    chrome.action.setIcon({ imageData });
+    browserAPI.action.setIcon({ imageData });
   } catch (e) {
     console.warn('Icon draw failed:', e);
   }
 });
 
-chrome.runtime.onStartup.addListener(() => {
+browserAPI.runtime.onStartup.addListener(() => {
   try {
     const imageData = {
       16: drawIcon(16),
@@ -57,7 +58,7 @@ chrome.runtime.onStartup.addListener(() => {
       48: drawIcon(48),
       128: drawIcon(128),
     };
-    chrome.action.setIcon({ imageData });
+    browserAPI.action.setIcon({ imageData });
   } catch (e) {
     console.warn('Icon draw failed:', e);
   }

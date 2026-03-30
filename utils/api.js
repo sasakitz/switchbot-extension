@@ -1,4 +1,5 @@
 // SwitchBot API v1.1 Client
+import { browserAPI } from './browser.js';
 
 const SWITCHBOT_API_BASE = 'https://api.switch-bot.com/v1.1';
 
@@ -24,7 +25,7 @@ async function generateSign(token, secret) {
 
 async function getCredentials() {
   return new Promise((resolve) => {
-    chrome.storage.local.get(['switchbot_token', 'switchbot_secret'], (result) => {
+    browserAPI.storage.local.get(['switchbot_token', 'switchbot_secret'], (result) => {
       resolve({
         token: result.switchbot_token || '',
         secret: result.switchbot_secret || '',

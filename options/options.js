@@ -1,4 +1,5 @@
 // options.js - Settings page logic
+const browserAPI = (typeof browser !== 'undefined') ? browser : chrome;
 
 document.addEventListener('DOMContentLoaded', () => {
   loadSavedCredentials();
@@ -26,7 +27,7 @@ function setupNavigation() {
 // Load credentials
 // =====================================================
 function loadSavedCredentials() {
-  chrome.storage.local.get(['switchbot_token', 'switchbot_secret'], (result) => {
+  browserAPI.storage.local.get(['switchbot_token', 'switchbot_secret'], (result) => {
     const tokenInput = document.getElementById('tokenInput');
     const secretInput = document.getElementById('secretInput');
 
@@ -123,11 +124,11 @@ async function saveCredentials() {
 
   try {
     await new Promise((resolve, reject) => {
-      chrome.storage.local.set(
+      browserAPI.storage.local.set(
         { switchbot_token: token, switchbot_secret: secret },
         () => {
-          if (chrome.runtime.lastError) {
-            reject(chrome.runtime.lastError);
+          if (browserAPI.runtime.lastError) {
+            reject(browserAPI.runtime.lastError);
           } else {
             resolve();
           }
@@ -136,7 +137,7 @@ async function saveCredentials() {
     });
 
     // Clear device cache so popup reloads
-    chrome.storage.local.remove('device_cache');
+    browserAPI.storage.local.remove('device_cache');
 
     setHint('tokenHint', '保存済み ✓', 'success');
     setHint('secretHint', '保存済み ✓', 'success');
@@ -232,7 +233,7 @@ async function testConnection() {
 // =====================================================
 async function clearCredentials() {
   await new Promise((resolve) => {
-    chrome.storage.local.remove(['switchbot_token', 'switchbot_secret', 'device_cache'], resolve);
+    browserAPI.storage.local.remove(['switchbot_token', 'switchbot_secret', 'device_cache'], resolve);
   });
 
   document.getElementById('tokenInput').value = '';
