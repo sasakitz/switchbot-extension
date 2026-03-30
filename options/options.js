@@ -1,5 +1,5 @@
 // options.js - Settings page logic
-const browserAPI = (typeof chrome !== 'undefined') ? chrome : browser;
+const browserAPI = (typeof browser !== 'undefined') ? browser : chrome;
 
 document.addEventListener('DOMContentLoaded', () => {
   loadSavedCredentials();
@@ -26,22 +26,21 @@ function setupNavigation() {
 // =====================================================
 // Load credentials
 // =====================================================
-function loadSavedCredentials() {
-  browserAPI.storage.local.get(['switchbot_token', 'switchbot_secret'], (result) => {
-    const tokenInput = document.getElementById('tokenInput');
-    const secretInput = document.getElementById('secretInput');
+async function loadSavedCredentials() {
+  const result = await browserAPI.storage.local.get(['switchbot_token', 'switchbot_secret']);
+  const tokenInput = document.getElementById('tokenInput');
+  const secretInput = document.getElementById('secretInput');
 
-    if (result.switchbot_token) {
-      tokenInput.value = result.switchbot_token;
-      tokenInput.classList.add('valid');
-      setHint('tokenHint', '保存済み ✓', 'success');
-    }
-    if (result.switchbot_secret) {
-      secretInput.value = result.switchbot_secret;
-      secretInput.classList.add('valid');
-      setHint('secretHint', '保存済み ✓', 'success');
-    }
-  });
+  if (result.switchbot_token) {
+    tokenInput.value = result.switchbot_token;
+    tokenInput.classList.add('valid');
+    setHint('tokenHint', '保存済み ✓', 'success');
+  }
+  if (result.switchbot_secret) {
+    secretInput.value = result.switchbot_secret;
+    secretInput.classList.add('valid');
+    setHint('secretHint', '保存済み ✓', 'success');
+  }
 }
 
 // =====================================================
@@ -123,21 +122,10 @@ async function saveCredentials() {
   saveBtn.disabled = true;
 
   try {
-    await new Promise((resolve, reject) => {
-      browserAPI.storage.local.set(
-        { switchbot_token: token, switchbot_secret: secret },
-        () => {
-          if (browserAPI.runtime.lastError) {
-            reject(browserAPI.runtime.lastError);
-          } else {
-            resolve();
-          }
-        }
-      );
-    });
+    await browserAPI.storage.local.set({ switchbot_token: token, switchbot_secret: secret });
 
     // Clear device cache so popup reloads
-    browserAPI.storage.local.remove('device_cache');
+    await browserAPI.storage.local.remove('device_cache');
 
     setHint('tokenHint', '保存済み ✓', 'success');
     setHint('secretHint', '保存済み ✓', 'success');
@@ -232,9 +220,7 @@ async function testConnection() {
 // Clear credentials
 // =====================================================
 async function clearCredentials() {
-  await new Promise((resolve) => {
-    browserAPI.storage.local.remove(['switchbot_token', 'switchbot_secret', 'device_cache'], resolve);
-  });
+  await browserAPI.storage.local.remove(['switchbot_token', 'switchbot_secret', 'device_cache']);
 
   document.getElementById('tokenInput').value = '';
   document.getElementById('secretInput').value = '';

@@ -24,14 +24,11 @@ async function generateSign(token, secret) {
 }
 
 async function getCredentials() {
-  return new Promise((resolve) => {
-    browserAPI.storage.local.get(['switchbot_token', 'switchbot_secret'], (result) => {
-      resolve({
-        token: result.switchbot_token || '',
-        secret: result.switchbot_secret || '',
-      });
-    });
-  });
+  const result = await browserAPI.storage.local.get(['switchbot_token', 'switchbot_secret']);
+  return {
+    token: result.switchbot_token || '',
+    secret: result.switchbot_secret || '',
+  };
 }
 
 async function apiRequest(endpoint, method = 'GET', body = null) {

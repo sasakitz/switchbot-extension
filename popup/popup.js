@@ -354,23 +354,15 @@ async function enrichWithStatus() {
 // =====================================================
 // Cache
 // =====================================================
-function getCached() {
-  return new Promise((resolve) => {
-    browserAPI.storage.local.get(['device_cache'], (r) => {
-      const cache = r.device_cache;
-      if (!cache || Date.now() - cache.ts > 30000) {
-        resolve(null);
-      } else {
-        resolve(cache);
-      }
-    });
-  });
+async function getCached() {
+  const r = await browserAPI.storage.local.get(['device_cache']);
+  const cache = r.device_cache;
+  if (!cache || Date.now() - cache.ts > 30000) return null;
+  return cache;
 }
 
-function setCached(devices) {
-  return new Promise((resolve) => {
-    browserAPI.storage.local.set({ device_cache: { devices, ts: Date.now() } }, resolve);
-  });
+async function setCached(devices) {
+  await browserAPI.storage.local.set({ device_cache: { devices, ts: Date.now() } });
 }
 
 // =====================================================
