@@ -1,5 +1,5 @@
 // Service Worker - SwitchBot Controller Extension
-import { browserAPI } from './utils/browser.js';
+const browserAPI = (typeof browser !== 'undefined') ? browser : chrome;
 
 function drawIcon(size) {
   const canvas = new OffscreenCanvas(size, size);
