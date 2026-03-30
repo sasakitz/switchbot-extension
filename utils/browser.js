@@ -1,2 +1,2 @@
-// Browser API polyfill: normalizes chrome.* and browser.* (Firefox/Chrome)
-export const browserAPI = (typeof browser !== 'undefined') ? browser : chrome;
+// Browser API polyfill: use chrome.* (callback-based, supported in both Chrome and Firefox 50+)
+export const browserAPI = (typeof chrome !== 'undefined') ? chrome : browser;

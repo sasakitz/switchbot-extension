@@ -1,5 +1,5 @@
 // options.js - Settings page logic
-const browserAPI = (typeof browser !== 'undefined') ? browser : chrome;
+const browserAPI = (typeof chrome !== 'undefined') ? chrome : browser;
 
 document.addEventListener('DOMContentLoaded', () => {
   loadSavedCredentials();
