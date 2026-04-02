@@ -549,6 +549,7 @@ function buildDeviceCard(device) {
         <button class="ctrl-btn active-off" data-cmd="acOff" data-id="${id}">OFF</button>
         <button class="ctrl-btn icon-only accent-btn" data-cmd="acTempDown" data-id="${id}" title="温度-">▾</button>
         <button class="ctrl-btn icon-only open-btn" data-cmd="acTempUp" data-id="${id}" title="温度+">▴</button>
+        <span class="ctrl-break"></span>
         <button class="ctrl-btn ${ac.mode === 1 ? 'accent-btn' : ''}" data-cmd="acMode" data-mode="1" data-id="${id}">自動</button>
         <button class="ctrl-btn ${ac.mode === 2 ? 'open-btn' : ''}" data-cmd="acMode" data-mode="2" data-id="${id}">冷房</button>
         <button class="ctrl-btn ${ac.mode === 3 ? 'locked-btn' : ''}" data-cmd="acMode" data-mode="3" data-id="${id}">暖房</button>
@@ -564,9 +565,10 @@ function buildDeviceCard(device) {
         <button class="ctrl-btn active-on" data-cmd="turnOn" data-id="${id}">ON</button>
         <button class="ctrl-btn active-off" data-cmd="turnOff" data-id="${id}">OFF</button>
         <button class="ctrl-btn accent-btn" data-cmd="swing" data-id="${id}">首振</button>
-        <button class="ctrl-btn" data-cmd="fanLow" data-id="${id}" title="弱">弱</button>
-        <button class="ctrl-btn" data-cmd="fanMid" data-id="${id}" title="中">中</button>
-        <button class="ctrl-btn" data-cmd="fanHigh" data-id="${id}" title="強">強</button>
+        <span class="ctrl-break"></span>
+        <button class="ctrl-btn" data-cmd="fanLow" data-id="${id}">弱</button>
+        <button class="ctrl-btn" data-cmd="fanMid" data-id="${id}">中</button>
+        <button class="ctrl-btn" data-cmd="fanHigh" data-id="${id}">強</button>
       `;
       break;
     }
