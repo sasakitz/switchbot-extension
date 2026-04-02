@@ -135,8 +135,10 @@ const ICONS = {
 
   fan: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
     <circle cx="12" cy="12" r="2"/>
-    <path d="M12 2c0 3.5-2 5-4 5s-5-2-5-2c2 1 3 3 3 5s-1 4-1 4c1-2 3-3 5-3s4 1 4 1c-2-1-3-3-3-5s1-4 1-4z"/>
-    <path d="M22 12c-3.5 0-5 2-5 4s2 5 2 5c-1-2-3-3-5-3s-4 1-4 1c2-1 3-3 3-5s-1-4-1-4z"/>
+    <path d="M12 10c0-3 2-5 4-4 2 1 1 4-4 4z"/>
+    <path d="M14 12c3 0 5 2 4 4-1 2-4 1-4-4z"/>
+    <path d="M12 14c0 3-2 5-4 4-2-1-1-4 4-4z"/>
+    <path d="M10 12c-3 0-5-2-4-4 1-2 4-1 4 4z"/>
   </svg>`,
 
   purifier: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
@@ -186,10 +188,10 @@ const ICONS = {
   </svg>`,
 
   co2: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M3 8h3a2 2 0 0 1 0 4H3"/>
-    <path d="M10 8h1a2 2 0 0 1 2 2v0a2 2 0 0 1-2 2h-1V8z"/>
-    <path d="M17 8a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2"/>
-    <path d="M3 16h18M5 19l1-3M19 19l-1-3"/>
+    <rect x="2" y="6" width="20" height="12" rx="2.5"/>
+    <circle cx="7" cy="12" r="1.5" fill="currentColor" stroke="none"/>
+    <circle cx="12" cy="12" r="2" fill="currentColor" stroke="none"/>
+    <circle cx="17" cy="12" r="1.5" fill="currentColor" stroke="none"/>
   </svg>`,
 };
 
@@ -547,6 +549,9 @@ function buildDeviceCard(device) {
         <button class="ctrl-btn active-off" data-cmd="acOff" data-id="${id}">OFF</button>
         <button class="ctrl-btn icon-only accent-btn" data-cmd="acTempDown" data-id="${id}" title="温度-">▾</button>
         <button class="ctrl-btn icon-only open-btn" data-cmd="acTempUp" data-id="${id}" title="温度+">▴</button>
+        <button class="ctrl-btn ${ac.mode === 1 ? 'accent-btn' : ''}" data-cmd="acMode" data-mode="1" data-id="${id}">自動</button>
+        <button class="ctrl-btn ${ac.mode === 2 ? 'open-btn' : ''}" data-cmd="acMode" data-mode="2" data-id="${id}">冷房</button>
+        <button class="ctrl-btn ${ac.mode === 3 ? 'locked-btn' : ''}" data-cmd="acMode" data-mode="3" data-id="${id}">暖房</button>
       `;
       break;
     }
@@ -777,43 +782,41 @@ function setupGridListeners() {
 // =====================================================
 async function executeCommand(device, cmd, btn) {
   const id = device.deviceId;
-  const type = device.deviceType || device.remoteType;
   const card = btn.closest('.device-card');
 
   setCardLoading(card, true);
   btn.disabled = true;
 
   try {
-    let result;
 
     switch (cmd) {
       // Basic on/off
-      case 'turnOn':  result = await sendCommand(id, 'turnOn'); break;
-      case 'turnOff': result = await sendCommand(id, 'turnOff'); break;
-      case 'press':   result = await sendCommand(id, 'press'); break;
+      case 'turnOn':  await sendCommand(id, 'turnOn'); break;
+      case 'turnOff': await sendCommand(id, 'turnOff'); break;
+      case 'press':   await sendCommand(id, 'press'); break;
 
       // Lock
-      case 'lock':   result = await sendCommand(id, 'lock'); break;
-      case 'unlock': result = await sendCommand(id, 'unlock'); break;
+      case 'lock':   await sendCommand(id, 'lock'); break;
+      case 'unlock': await sendCommand(id, 'unlock'); break;
 
       // Curtain
-      case 'curtain-open':  result = await sendCommand(id, 'turnOn'); break;
-      case 'curtain-close': result = await sendCommand(id, 'turnOff'); break;
-      case 'curtain-pause': result = await sendCommand(id, 'pause'); break;
+      case 'curtain-open':  await sendCommand(id, 'turnOn'); break;
+      case 'curtain-close': await sendCommand(id, 'turnOff'); break;
+      case 'curtain-pause': await sendCommand(id, 'pause'); break;
 
       // Light brightness
-      case 'brightnessUp':   result = await sendCommand(id, 'brightnessUp', 'default', 'command'); break;
-      case 'brightnessDown': result = await sendCommand(id, 'brightnessDown', 'default', 'command'); break;
+      case 'brightnessUp':   await sendCommand(id, 'brightnessUp', 'default', 'command'); break;
+      case 'brightnessDown': await sendCommand(id, 'brightnessDown', 'default', 'command'); break;
 
       // AC
       case 'acOn': {
         const ac = acState[id] || { temp: 26, mode: 2 };
-        result = await sendCommand(id, 'setAll', `${ac.temp},${ac.mode},1,on`, 'command');
+        await sendCommand(id, 'setAll', `${ac.temp},${ac.mode},1,on`, 'command');
         break;
       }
       case 'acOff': {
         const ac = acState[id] || { temp: 26, mode: 2 };
-        result = await sendCommand(id, 'setAll', `${ac.temp},${ac.mode},1,off`, 'command');
+        await sendCommand(id, 'setAll', `${ac.temp},${ac.mode},1,off`, 'command');
         break;
       }
       case 'acTempUp': {
@@ -829,21 +832,27 @@ async function executeCommand(device, cmd, btn) {
         refreshCard(device, card);
         return;
       }
+      case 'acMode': {
+        if (!acState[id]) acState[id] = { temp: 26, mode: 2 };
+        acState[id].mode = parseInt(btn.dataset.mode);
+        refreshCard(device, card);
+        return;
+      }
 
       // Fan
-      case 'swing':   result = await sendCommand(id, 'swing'); break;
-      case 'fanLow':  result = await sendCommand(id, 'lowSpeed'); break;
-      case 'fanMid':  result = await sendCommand(id, 'middleSpeed'); break;
-      case 'fanHigh': result = await sendCommand(id, 'highSpeed'); break;
+      case 'swing':   await sendCommand(id, 'swing'); break;
+      case 'fanLow':  await sendCommand(id, 'lowSpeed'); break;
+      case 'fanMid':  await sendCommand(id, 'middleSpeed'); break;
+      case 'fanHigh': await sendCommand(id, 'highSpeed'); break;
 
       // TV
-      case 'volumeAdd':  result = await sendCommand(id, 'volumeAdd'); break;
-      case 'volumeSub':  result = await sendCommand(id, 'volumeSub'); break;
-      case 'channelAdd': result = await sendCommand(id, 'channelAdd'); break;
-      case 'channelSub': result = await sendCommand(id, 'channelSub'); break;
+      case 'volumeAdd':  await sendCommand(id, 'volumeAdd'); break;
+      case 'volumeSub':  await sendCommand(id, 'volumeSub'); break;
+      case 'channelAdd': await sendCommand(id, 'channelAdd'); break;
+      case 'channelSub': await sendCommand(id, 'channelSub'); break;
 
       default:
-        result = await sendCommand(id, cmd);
+        await sendCommand(id, cmd);
     }
 
     showToast('✓ コマンド送信完了', 'success');
