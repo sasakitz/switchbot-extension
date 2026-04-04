@@ -86,4 +86,4 @@ Chrome 96以上 / Firefox 109以上
 ## プライバシーポリシー URL
 
 `store/privacy-policy.html` をホスティングした URL を入力してください。
-GitHub Pages を使う場合: `https://<username>.github.io/switchbot-extension/store/privacy-policy.html`
+GitHub Pages URL: `https://sasakitz.github.io/switchbot-extension/store/privacy-policy.html`
