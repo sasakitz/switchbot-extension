@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>プライバシーポリシー - SwitchBot Controller</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 0 24px;
+      color: #1a1a2e;
+      line-height: 1.8;
+    }
+    h1 { font-size: 24px; border-bottom: 2px solid #5C6BC0; padding-bottom: 12px; }
+    h2 { font-size: 18px; margin-top: 32px; color: #5C6BC0; }
+    p, li { font-size: 15px; color: #333; }
+    ul { padding-left: 20px; }
+    .updated { color: #888; font-size: 13px; }
+  </style>
+</head>
+<body>
+
+  <h1>プライバシーポリシー</h1>
+  <p class="updated">最終更新日: 2026年4月4日</p>
+
+  <p>SwitchBot Controller（以下「本拡張機能」）は、ユーザーのプライバシーを尊重し、個人情報の保護に努めます。</p>
+
+  <h2>収集する情報</h2>
+  <p>本拡張機能が収集・保存する情報は以下のみです。</p>
+  <ul>
+    <li><strong>SwitchBot API トークン</strong> — ユーザーが設定画面に入力したもの</li>
+    <li><strong>SwitchBot クライアントシークレット</strong> — ユーザーが設定画面に入力したもの</li>
+    <li><strong>デバイスキャッシュ</strong> — APIレスポンスの一時キャッシュ（30秒間）</li>
+  </ul>
+
+  <h2>情報の利用目的</h2>
+  <p>収集した情報は、SwitchBot API へのリクエスト認証のみに使用します。</p>
+
+  <h2>情報の保存場所</h2>
+  <p>すべての情報はユーザーのブラウザのローカルストレージ（<code>chrome.storage.local</code>）にのみ保存されます。開発者のサーバーや第三者へ送信されることは一切ありません。</p>
+
+  <h2>第三者への情報提供</h2>
+  <p>本拡張機能は、ユーザーの情報を第三者に販売・共有・開示しません。APIリクエストは SwitchBot の公式 API（<code>api.switch-bot.com</code>）にのみ送信されます。</p>
+
+  <h2>外部サービスとの通信</h2>
+  <p>本拡張機能が通信する外部サービスは以下のみです。</p>
+  <ul>
+    <li><strong>SwitchBot API</strong>（<code>https://api.switch-bot.com</code>）— デバイスの操作・状態取得のため</li>
+  </ul>
+
+  <h2>データの削除</h2>
+  <p>設定画面の「認証情報を削除」ボタンを押すことで、保存されたすべての情報をいつでも削除できます。拡張機能をアンインストールすることでも、すべてのデータが削除されます。</p>
+
+  <h2>お問い合わせ</h2>
+  <p>プライバシーポリシーに関するご質問は、<a href="https://github.com/sasakitz/switchbot-extension/issues">GitHub Issues</a> よりお問い合わせください。</p>
+
+</body>
+</html>
