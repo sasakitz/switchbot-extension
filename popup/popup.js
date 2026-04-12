@@ -441,18 +441,21 @@ function buildDeviceCard(device) {
     case 'Curtain':
     case 'Curtain3':
     case 'Blind Tilt': {
+      // slidePosition: 0 = fully open, 100 = fully closed (SwitchBot API)
+      // openDegree: 0 = fully closed, 100 = fully open (UI representation)
       const pos = status.slidePosition ?? status.tilt ?? 0;
+      const openDegree = 100 - pos;
       const moving = status.moving;
       badgeHtml = moving
         ? `<span class="status-badge detected">移動中</span>`
-        : pos > 50
+        : pos < 50
           ? `<span class="status-badge open">開</span>`
           : `<span class="status-badge close">閉</span>`;
       extraHtml = `
         <div class="curtain-pos-wrap">
           <span class="curtain-pos-label">開度</span>
-          <input type="range" min="0" max="100" value="${pos}" class="curtain-slider" data-id="${id}" data-cmd="curtain-pos">
-          <span class="curtain-pos-val">${pos}%</span>
+          <input type="range" min="0" max="100" value="${openDegree}" class="curtain-slider" data-id="${id}" data-cmd="curtain-pos">
+          <span class="curtain-pos-val">${openDegree}%</span>
         </div>
       `;
       controlsHtml = `
@@ -880,7 +883,8 @@ async function executeSetPosition(device, pos, slider) {
   const card = slider.closest('.device-card');
   setCardLoading(card, true);
   try {
-    await sendCommand(id, 'setPosition', `0,ff,${pos}`);
+    // API uses 0=open, 100=closed; slider pos is open degree (0=closed, 100=open)
+    await sendCommand(id, 'setPosition', `0,ff,${100 - pos}`);
     showToast(`開度 ${pos}% に設定しました`, 'success');
   } catch (err) {
     showToast(`エラー: ${err.message}`, 'error');
