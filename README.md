@@ -2,7 +2,7 @@
 
 SwitchBot APIを使用してスマートホームデバイスをブラウザから直接操作・監視できるブラウザ拡張機能です。Chrome・Firefox の両方に対応しています。
 
-[![Available in the Chrome Web Store](https://storage.googleapis.com/web-dev-uploads/image/WlD8wC6g8khYWPJUsQceQkhXSlv1/UV4C4ybeBTsZt43U4xis.png)](https://chromewebstore.google.com/detail/switchbot-controller/cbdacfebiphkicmlkopnhkebfagmdejb)
+[![Available in the Chrome Web Store](store/chrome-web-store-badge.png)](https://chromewebstore.google.com/detail/switchbot-controller/cbdacfebiphkicmlkopnhkebfagmdejb)
 
 ## 機能
 
