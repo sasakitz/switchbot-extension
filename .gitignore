@@ -1,6 +1,16 @@
-store/promo-tile.svg
-store/promo-tile-440x280.png
-store/shop-icon-128x128.png
-store/chrome-web-store-badge.png
-store/screenshots/
-store/*.zip
+# 公開用ポリシー・説明・生成ツール以外のストア資料はローカル管理
+/store/*
+!/store/README.md
+!/store/privacy-policy.html
+!/store/build-assets.mjs
+!/store/render-assets.py
+!/store/package-assets.py
+!/store/package-extension.py
+
+# ローカルの認証情報・秘密鍵
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+__pycache__/

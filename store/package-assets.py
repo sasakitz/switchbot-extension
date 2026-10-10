@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Validate assets, copy submission copy, and create a store-listing ZIP."""
+import argparse
 import hashlib
 import json
 import shutil
@@ -9,7 +10,16 @@ from PIL import Image
 
 store = Path(__file__).resolve().parent
 kit = store / 'kit'
-for name in ['README.md', 'listing.md', 'review-submission.md', 'submission-guide.md', 'privacy-policy.html']:
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument('--include-review', action='store_true',
+                    help='審査資料を含むローカル確認用ZIPを作成（公開用ではありません）')
+args = parser.parse_args()
+private_docs = {'listing.md', 'review-submission.md', 'submission-guide.md'}
+for name in ['README.md', 'privacy-policy.html', *sorted(private_docs)]:
+    if not (store / name).exists():
+        if name in private_docs and not args.include_review:
+            continue
+        raise SystemExit(f'ローカル資料がありません: {store / name}')
     shutil.copyfile(store / name, kit / name)
 
 expected = {**{f'screenshots/{name}': (1280, 800) for name in [
@@ -25,18 +35,24 @@ for name, size in expected.items():
         assert image.mode == ('RGBA' if name.startswith('icons/') else 'RGB'), (name, image.mode)
         if name.startswith('icons/'):
             assert image.getchannel('A').getbbox() == (16, 16, 112, 112), image.getchannel('A').getbbox()
-for language in ['ja', 'en']:
+for language in ['ja']:
     text = (kit / f'text/short-description-{language}.txt').read_text().strip()
     assert len(text) <= 132, (language, len(text))
     print(f'Short description ({language}): {len(text)} characters')
 
+public_files = set(expected) | {
+    'README.md', 'privacy-policy.html', 'text/description-ja.txt',
+    'text/short-description-ja.txt', 'text/release-notes-ja.txt', 'text/build-info.json',
+    'icons/icon.svg', *{f'icons/icon{size}.png' for size in [16, 32, 48, 128]},
+}
 files = sorted(p for p in kit.rglob('*') if p.is_file() and 'source' not in p.relative_to(kit).parts
-               and p.name not in ['assets-manifest.json', 'SHA256SUMS.txt'])
+               and p.name not in ['assets-manifest.json', 'SHA256SUMS.txt']
+               and (args.include_review or p.relative_to(kit).as_posix() in public_files))
 items = [{'file': str(p.relative_to(kit)), 'bytes': p.stat().st_size,
           'sha256': hashlib.sha256(p.read_bytes()).hexdigest()} for p in files]
 (kit / 'assets-manifest.json').write_text(json.dumps({'date': '2026-10-11', 'files': items}, indent=2) + '\n')
 (kit / 'SHA256SUMS.txt').write_text(''.join(f"{item['sha256']}  {item['file']}\n" for item in items))
-archive = store / 'switchbot-store-listing-kit.zip'
+archive = store / ('switchbot-store-review-kit.zip' if args.include_review else 'switchbot-store-listing-kit.zip')
 with zipfile.ZipFile(archive, 'w', zipfile.ZIP_DEFLATED) as output:
     for p in [*files, kit / 'assets-manifest.json', kit / 'SHA256SUMS.txt']:
         output.write(p, str(p.relative_to(kit)))

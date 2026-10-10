@@ -1,7 +1,7 @@
 # ストア掲載素材
 
 Chrome Web Store向け。2026年10月11日に、現在のUIから作成しました。
-審査提出の操作順は [submission-guide.md](submission-guide.md) を参照してください。
+審査提出資料・入力原稿と生成済みの `store/kit/` はローカル管理です。公開リポジトリには含めません。
 最新の素材は **`store/kit/`**、提出用のまとめは **`store/switchbot-store-listing-kit.zip`** です。
 従来の `store/screenshots/` と直下の旧プロモーション画像は、今回の提出では使用しません。
 
@@ -26,11 +26,10 @@ Chrome Web Store向け。2026年10月11日に、現在のUIから作成しまし
 
 - `kit/text/short-description-ja.txt`：日本語の短い説明（132文字以内）
 - `kit/text/description-ja.txt`：日本語の詳細説明
-- `kit/text/short-description-en.txt`、`description-en.txt`：英語の参考原稿。UIの英語化は含まない
 - `kit/text/release-notes-ja.txt`：今回の更新内容
-- [listing.md](listing.md)：掲載順、カテゴリ候補とリンク
-- [review-submission.md](review-submission.md)：単一目的、権限用途、データの扱い、審査担当者向け手順
-- [submission-guide.md](submission-guide.md)：本体ZIPの作成、Dashboardへの入力、審査提出と公開の手順
+- `listing.md`（ローカル資料）：掲載順、カテゴリ候補とリンク
+- `review-submission.md`（ローカル資料）：単一目的、権限用途、データの扱い、審査担当者向け手順
+- `submission-guide.md`（ローカル資料）：本体ZIPの作成、開発者ダッシュボードへの入力、審査提出と公開の手順
 - [privacy-policy.html](privacy-policy.html)：実装と整合させたポリシーの修正版
 
 APIトークンなどのSwitchBot公式APIへの送信を明記し、「常時リアルタイム監視」「拡張機能独自の暗号化保存」といった未実装の機能は掲載文に含めていません。
@@ -54,13 +53,17 @@ HTMLソースは `kit/source/` に保存され、生成済み画像の文言・�
 
 ZIPを展開した場合は、以下のファイル案内の `kit/` 接頭辞を省いたパスで参照してください。
 
-ZIPには画像・本文・提出資料を同梱します。HTMLソースと再生成スクリプトはリポジトリ側に残します。
-このZIPは **掲載素材用** であり、拡張機能パッケージとしてDashboardにアップロードするファイルではありません。
+通常のZIPには画像・掲載本文・公開ポリシーを同梱し、審査提出資料・内部原稿は含めません。
+審査資料もまとめる場合は `python store/package-assets.py --include-review` で
+`switchbot-store-review-kit.zip` を作成してください。このZIPはローカル確認用であり、公開リリースに添付しません。
+生成HTMLもローカル管理です。生成ツールは公開リポジトリに残します。
+文章ファイルはローカルの `kit/text/` で管理するため、別のチェックアウトで素材を再生成する場合は自分で掲載本文を用意してください。
+このZIPは **掲載素材用** であり、拡張機能パッケージとして開発者ダッシュボードにアップロードするファイルではありません。
 
 ## 公開時に必要な作業
 
-現時点ではローカルで素材を作成しただけです。
-GitHub Pagesにある公開ポリシーは旧版なので、修正版の公開が必要です。
+2.0.0のGitHubリリースに掲載素材を同梱しています。ストア提出用の文章・画像は日本語に統一しています。
+提出前にGitHub Pagesの公開ポリシーを開き、リポジトリの修正版が反映されていることを確認してください。
 拡張機能をアップデートする場合は、公開済み版より新しいバージョンのパッケージも別途用意してください。
 今回のリリース用manifestは2.0.0です。Chrome Web Storeへのアップロード、審査提出、公開は行っていません。
 
