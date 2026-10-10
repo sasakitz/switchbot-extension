@@ -1,10 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
-  <!-- Background: rounded square, Material Indigo -->
-  <rect width="128" height="128" rx="28" ry="28" fill="#5C6BC0"/>
-
-  <!-- Toggle track (pill, white) -->
-  <rect x="16" y="44" width="96" height="40" rx="20" ry="20" fill="white" opacity="0.3"/>
-
-  <!-- Toggle knob (ON = right, white circle) -->
-  <circle cx="84" cy="64" r="20" fill="white"/>
+  <rect x="4" y="4" width="120" height="120" rx="30" fill="#153e35"/>
+  <polygon points="24,58 64,25 104,58 96,58 96,100 32,100 32,58" fill="#f6faf7"/>
+  <rect x="44" y="64" width="40" height="20" rx="10" fill="#153e35"/>
+  <circle cx="74" cy="74" r="7" fill="#9de3bc"/>
 </svg>

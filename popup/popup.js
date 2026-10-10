@@ -1,199 +1,12 @@
 // popup.js - SwitchBot Controller popup logic
 import { getDevices, getDeviceStatus, sendCommand } from '../utils/api.js';
 import { browserAPI } from '../utils/browser.js';
-
-// =====================================================
-// Device config: icon, label, category, accent color
-// =====================================================
-const DEVICE_CONFIG = {
-  // Physical
-  Bot:                { icon: 'bot',     label: 'スイッチボット',   cat: 'control',   color: '#fb923c' },
-  Curtain:            { icon: 'curtain', label: 'カーテン',         cat: 'curtain',   color: '#a78bfa' },
-  Curtain3:           { icon: 'curtain', label: 'カーテン3',        cat: 'curtain',   color: '#a78bfa' },
-  'Blind Tilt':       { icon: 'blind',   label: 'ブラインド',       cat: 'curtain',   color: '#a78bfa' },
-  Lock:               { icon: 'lock',    label: 'スマートロック',   cat: 'security',  color: '#f87171' },
-  'Lock Pro':         { icon: 'lock',    label: 'スマートロック Pro',cat: 'security',  color: '#f87171' },
-  'Color Bulb':       { icon: 'bulb',    label: 'カラー電球',       cat: 'light',     color: '#fbbf24' },
-  'Strip Light':      { icon: 'strip',   label: 'テープライト',     cat: 'light',     color: '#fbbf24' },
-  'Plug':             { icon: 'plug',    label: 'スマートプラグ',   cat: 'control',   color: '#34d399' },
-  'Plug Mini (US)':   { icon: 'plug',    label: 'プラグミニ',       cat: 'control',   color: '#34d399' },
-  'Plug Mini (JP)':   { icon: 'plug',    label: 'プラグミニ (JP)',  cat: 'control',   color: '#34d399' },
-  Meter:              { icon: 'meter',   label: '温湿度計',         cat: 'sensor',    color: '#34d399' },
-  'Meter Plus':       { icon: 'meter',   label: '温湿度計 Plus',    cat: 'sensor',    color: '#34d399' },
-  'Hub 2':            { icon: 'hub',     label: 'ハブ2',            cat: 'hub',       color: '#6366f1' },
-  Hub:                { icon: 'hub',     label: 'ハブ',             cat: 'hub',       color: '#6366f1' },
-  'Hub Mini':         { icon: 'hub',     label: 'ハブミニ',         cat: 'hub',       color: '#6366f1' },
-  'Hub Plus':         { icon: 'hub',     label: 'ハブ Plus',        cat: 'hub',       color: '#6366f1' },
-  'Outdoor Meter':    { icon: 'meter',   label: '屋外温湿度計',     cat: 'sensor',    color: '#34d399' },
-  'Motion Sensor':    { icon: 'motion',  label: '人感センサー',     cat: 'sensor',    color: '#a78bfa' },
-  'Contact Sensor':   { icon: 'contact', label: '開閉センサー',     cat: 'sensor',    color: '#a78bfa' },
-  'Water Detector':   { icon: 'water',   label: '水漏れセンサー',   cat: 'sensor',    color: '#60a5fa' },
-  'CO2 Sensor':       { icon: 'co2',     label: 'CO2センサー',      cat: 'sensor',    color: '#34d399' },
-  'MeterPro(CO2)':    { icon: 'co2',     label: 'CO2センサー',      cat: 'sensor',    color: '#34d399' },
-  Humidifier:         { icon: 'humid',   label: '加湿器',           cat: 'climate',   color: '#60a5fa' },
-  // IR virtual
-  'Air Conditioner':  { icon: 'ac',      label: 'エアコン',         cat: 'climate',   color: '#60a5fa' },
-  TV:                 { icon: 'tv',      label: 'テレビ',           cat: 'media',     color: '#f472b6' },
-  Light:              { icon: 'bulb',    label: '照明',             cat: 'light',     color: '#fbbf24' },
-  Fan:                { icon: 'fan',     label: '扇風機',           cat: 'climate',   color: '#60a5fa' },
-  'DIY Fan':          { icon: 'fan',     label: '扇風機 (DIY)',     cat: 'climate',   color: '#60a5fa' },
-  'Air Purifier':     { icon: 'purifier',label: '空気清浄機',       cat: 'climate',   color: '#34d399' },
-  Camera:             { icon: 'camera',  label: 'カメラ',           cat: 'security',  color: '#f87171' },
-  'DVD Player':       { icon: 'tv',      label: 'DVDプレーヤー',    cat: 'media',     color: '#f472b6' },
-  Speaker:            { icon: 'speaker', label: 'スピーカー',       cat: 'media',     color: '#f472b6' },
-  'Set Top Box':      { icon: 'tv',      label: 'セットトップボックス', cat: 'media', color: '#f472b6' },
-  Projector:          { icon: 'projector',label: 'プロジェクター',  cat: 'media',     color: '#f472b6' },
-  Others:             { icon: 'remote',  label: 'リモコン',         cat: 'control',   color: '#94a3b8' },
-};
-
-// =====================================================
-// SVG Icons
-// =====================================================
-const ICONS = {
-  bot: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-    <rect x="3" y="8" width="18" height="12" rx="3"/>
-    <path d="M8 8V6a4 4 0 0 1 8 0v2"/>
-    <circle cx="9" cy="14" r="1.5" fill="currentColor"/>
-    <circle cx="15" cy="14" r="1.5" fill="currentColor"/>
-    <path d="M9.5 17.5c.8.5 1.7.8 2.5.8s1.7-.3 2.5-.8"/>
-  </svg>`,
-
-  curtain: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
-    <path d="M3 3h18M3 3v18M21 3v18"/>
-    <path d="M3 3c2 4 3 8 3 12M21 3c-2 4-3 8-3 12"/>
-    <path d="M12 3v4"/>
-    <circle cx="12" cy="3" r="1" fill="currentColor"/>
-  </svg>`,
-
-  blind: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
-    <path d="M3 3h18"/>
-    <path d="M3 8h18M3 13h18M3 18h18"/>
-    <path d="M12 3v18"/>
-  </svg>`,
-
-  lock: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-    <rect x="5" y="11" width="14" height="11" rx="2"/>
-    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-    <circle cx="12" cy="16" r="1.5" fill="currentColor"/>
-    <line x1="12" y1="17.5" x2="12" y2="20"/>
-  </svg>`,
-
-  bulb: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
-    <path d="M9 21h6M12 3a6 6 0 0 1 6 6c0 2.2-1.1 4.1-2.7 5.3L15 17H9l-.3-2.7A6 6 0 0 1 6 9a6 6 0 0 1 6-6z"/>
-    <path d="M10 21h4"/>
-  </svg>`,
-
-  strip: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
-    <rect x="2" y="9" width="20" height="6" rx="3"/>
-    <circle cx="7" cy="12" r="1.5" fill="currentColor"/>
-    <circle cx="12" cy="12" r="1.5" fill="currentColor"/>
-    <circle cx="17" cy="12" r="1.5" fill="currentColor"/>
-    <path d="M7 9V7M12 9V6M17 9V7"/>
-  </svg>`,
-
-  plug: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
-    <path d="M12 22v-5M9 7V2M15 7V2"/>
-    <rect x="5" y="7" width="14" height="10" rx="3"/>
-    <line x1="9" y1="12" x2="9" y2="12.1" stroke-width="2.5"/>
-    <line x1="15" y1="12" x2="15" y2="12.1" stroke-width="2.5"/>
-  </svg>`,
-
-  meter: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
-    <path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/>
-    <line x1="11.5" y1="8" x2="12.5" y2="8" stroke-width="1.5"/>
-    <line x1="11.5" y1="11" x2="13" y2="11" stroke-width="1.5"/>
-  </svg>`,
-
-  hub: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
-    <circle cx="12" cy="12" r="3"/>
-    <path d="M6.3 17.7a8 8 0 0 1 0-11.4M17.7 6.3a8 8 0 0 1 0 11.4"/>
-    <path d="M3 21a13 13 0 0 1 0-18M21 3a13 13 0 0 1 0 18"/>
-  </svg>`,
-
-  motion: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
-    <circle cx="12" cy="7" r="3"/>
-    <path d="M8 12h8M10 12v8M14 12v8"/>
-    <path d="M3 9c1.5-2 4-3 5-1M21 9c-1.5-2-4-3-5-1" stroke-dasharray="2 2"/>
-  </svg>`,
-
-  contact: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
-    <rect x="3" y="3" width="14" height="18" rx="1"/>
-    <path d="M17 6h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1h-3"/>
-    <circle cx="12" cy="12" r="1.5" fill="currentColor"/>
-  </svg>`,
-
-  water: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
-    <path d="M12 2L6 10a6 6 0 0 0 12 0L12 2z"/>
-    <path d="M9.5 14.5c.7 1 1.5 1.5 2.5 1.5s1.8-.5 2.5-1.5"/>
-  </svg>`,
-
-  ac: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
-    <rect x="2" y="5" width="20" height="10" rx="2"/>
-    <path d="M7 15v3M12 15v4M17 15v3"/>
-    <path d="M6 10h12M6 10l2-2M18 10l-2-2M6 10l2 2M18 10l-2 2"/>
-  </svg>`,
-
-  fan: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
-    <circle cx="12" cy="12" r="2"/>
-    <path d="M12 10c0-3 2-5 4-4 2 1 1 4-4 4z"/>
-    <path d="M14 12c3 0 5 2 4 4-1 2-4 1-4-4z"/>
-    <path d="M12 14c0 3-2 5-4 4-2-1-1-4 4-4z"/>
-    <path d="M10 12c-3 0-5-2-4-4 1-2 4-1 4 4z"/>
-  </svg>`,
-
-  purifier: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
-    <path d="M5 3h14a1 1 0 0 1 1 1v2l-3 4v9a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1v-9L4 6V4a1 1 0 0 1 1-1z"/>
-    <path d="M4 6h16"/>
-    <circle cx="12" cy="14" r="3"/>
-    <path d="M12 11v2M12 16v1M9.3 14H11M13 14h1.7M10.2 12.2l.8.8M13 15l.8.8M13 12.2l-.8.8M11 15l-.8.8"/>
-  </svg>`,
-
-  tv: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
-    <rect x="2" y="3" width="20" height="14" rx="2"/>
-    <path d="M8 21h8M12 17v4"/>
-  </svg>`,
-
-  camera: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
-    <path d="M23 7l-7 5 7 5V7z"/>
-    <rect x="1" y="5" width="15" height="14" rx="2"/>
-  </svg>`,
-
-  speaker: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
-    <rect x="4" y="2" width="16" height="20" rx="2"/>
-    <circle cx="12" cy="14" r="4"/>
-    <circle cx="12" cy="14" r="1.5" fill="currentColor"/>
-    <circle cx="12" cy="6" r="1" fill="currentColor"/>
-  </svg>`,
-
-  projector: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
-    <rect x="2" y="6" width="20" height="10" rx="2"/>
-    <circle cx="8" cy="11" r="2"/>
-    <path d="M15 9h4M15 11h4M15 13h4"/>
-  </svg>`,
-
-  remote: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
-    <rect x="7" y="2" width="10" height="20" rx="3"/>
-    <line x1="12" y1="6" x2="12" y2="6.1" stroke-width="3"/>
-    <line x1="9.5" y1="11" x2="9.5" y2="11.1" stroke-width="2.5"/>
-    <line x1="14.5" y1="11" x2="14.5" y2="11.1" stroke-width="2.5"/>
-    <line x1="9.5" y1="15" x2="9.5" y2="15.1" stroke-width="2.5"/>
-    <line x1="14.5" y1="15" x2="14.5" y2="15.1" stroke-width="2.5"/>
-    <line x1="12" y1="13" x2="12" y2="13.1" stroke-width="2.5"/>
-    <line x1="12" y1="17" x2="12" y2="17.1" stroke-width="2.5"/>
-  </svg>`,
-
-  humid: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
-    <path d="M12 2L6 10a6 6 0 0 0 12 0L12 2z"/>
-    <path d="M8 16c1.5 2 6.5 2 8 0"/>
-  </svg>`,
-
-  co2: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-    <rect x="2" y="6" width="20" height="12" rx="2.5"/>
-    <circle cx="7" cy="12" r="1.5" fill="currentColor" stroke="none"/>
-    <circle cx="12" cy="12" r="2" fill="currentColor" stroke="none"/>
-    <circle cx="17" cy="12" r="1.5" fill="currentColor" stroke="none"/>
-  </svg>`,
-};
+import { getCached, setCached, getDeviceOrder, saveDeviceOrder } from '../utils/storage.js';
+import { getConfig } from './device-config.js';
+import { buildDeviceCard } from './device-card.js';
+import { getAvailableFilters, getDeviceCategory, buildFilterTabs } from './filters.js';
+import { applyDeviceOrder, moveVisibleDevice, moveDeviceToTop } from './device-order.js';
+import { buildOrderRow } from './order-row.js';
 
 // =====================================================
 // State
@@ -203,6 +16,10 @@ let activeFilter = 'all';
 let searchQuery = '';
 let lastUpdated = null;
 let acState = {}; // { [deviceId]: { temp, mode } }
+let savedDeviceOrder = [];
+let isReordering = false;
+let isSavingOrder = false;
+let draggedDeviceId = null;
 
 // =====================================================
 // Utils
@@ -232,27 +49,27 @@ function timeAgo(date) {
   return `${Math.floor(s / 3600)}時間前`;
 }
 
-function getConfig(deviceType) {
-  return DEVICE_CONFIG[deviceType] || { icon: 'remote', label: deviceType, cat: 'control', color: '#94a3b8' };
-}
-
-function hexToRgba(hex, alpha) {
-  const r = parseInt(hex.slice(1, 3), 16);
-  const g = parseInt(hex.slice(3, 5), 16);
-  const b = parseInt(hex.slice(5, 7), 16);
-  return `rgba(${r},${g},${b},${alpha})`;
-}
-
 // =====================================================
 // Init
 // =====================================================
 document.addEventListener('DOMContentLoaded', async () => {
   setupEventListeners();
+  setInterval(updateFooter, 10000);
+  try {
+    savedDeviceOrder = await getDeviceOrder();
+  } catch {
+    showToast('保存した並び順を読み込めませんでした', 'error');
+  }
   await loadDevices();
 });
 
 function setupEventListeners() {
   setupGridListeners();
+  setupOrderListeners();
+  $('reorderBtn').addEventListener('click', () => {
+    setReordering(!isReordering);
+    renderDevices();
+  });
   $('refreshBtn').addEventListener('click', () => loadDevices(true));
 
   $('settingsBtn').addEventListener('click', () => {
@@ -268,8 +85,7 @@ function setupEventListeners() {
     const tab = e.target.closest('.tab');
     if (!tab) return;
     activeFilter = tab.dataset.filter;
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
+    updateFilterSelection();
     renderDevices();
   });
 
@@ -302,8 +118,9 @@ async function loadDevices(forceRefresh = false) {
     if (!forceRefresh) {
       const cached = await getCached();
       if (cached) {
-        allDevices = cached.devices;
+        allDevices = applyDeviceOrder(cached.devices, savedDeviceOrder);
         lastUpdated = cached.ts;
+        updateFilterTabs();
         await enrichWithStatus();
         renderDevices();
         showGrid();
@@ -315,7 +132,8 @@ async function loadDevices(forceRefresh = false) {
     const body = await getDevices();
     const physicalDevices = (body.deviceList || []).map(d => ({ ...d, isIR: false }));
     const irDevices = (body.infraredRemoteList || []).map(d => ({ ...d, isIR: true }));
-    allDevices = [...physicalDevices, ...irDevices];
+    allDevices = applyDeviceOrder([...physicalDevices, ...irDevices], savedDeviceOrder);
+    updateFilterTabs();
 
     await setCached(allDevices);
     lastUpdated = Date.now();
@@ -330,6 +148,11 @@ async function loadDevices(forceRefresh = false) {
     showError(err.message);
   } finally {
     $('refreshBtn').querySelector('svg').parentElement.classList.remove('spinning');
+    if (allDevices.length < 2 && isReordering) {
+      setReordering(false);
+      renderDevices();
+    }
+    $('reorderBtn').disabled = allDevices.length < 2 || !$('errorState').classList.contains('hidden');
   }
 }
 
@@ -354,28 +177,59 @@ async function enrichWithStatus() {
 }
 
 // =====================================================
-// Cache
-// =====================================================
-async function getCached() {
-  const r = await browserAPI.storage.local.get(['device_cache']);
-  const cache = r.device_cache;
-  if (!cache || Date.now() - cache.ts > 30000) return null;
-  return cache;
-}
-
-async function setCached(devices) {
-  await browserAPI.storage.local.set({ device_cache: { devices, ts: Date.now() } });
-}
-
-// =====================================================
 // Render
 // =====================================================
+function setReordering(enabled) {
+  isReordering = enabled;
+  $('reorderBtn').textContent = enabled ? '完了' : '並び替え';
+  $('reorderBtn').setAttribute('aria-pressed', String(enabled));
+  $('orderHint').classList.toggle('hidden', !enabled);
+  $('orderHint').textContent = 'ドラッグか矢印で移動。先頭ボタンで一番上へ。';
+}
+
+function updateFilterSelection() {
+  $('filterTabs').querySelectorAll('.tab').forEach(tab => {
+    const selected = tab.dataset.filter === activeFilter;
+    tab.classList.toggle('active', selected);
+    tab.setAttribute('aria-pressed', String(selected));
+  });
+}
+
+function updateFilterTabs() {
+  const filters = getAvailableFilters(allDevices);
+  // A refresh can remove the final device in the selected category.
+  if (!filters.some(filter => filter.id === activeFilter)) activeFilter = 'all';
+  $('filterTabs').innerHTML = buildFilterTabs(filters, activeFilter);
+}
+
 function renderDevices() {
   const grid = $('deviceGrid');
+  grid.setAttribute('aria-busy', String(isSavingOrder));
+  if (isReordering) grid.setAttribute('role', 'list');
+  else grid.removeAttribute('role');
 
-  let filtered = allDevices.filter(d => {
-    const cfg = getConfig(d.deviceType || d.remoteType);
-    if (activeFilter !== 'all' && cfg.cat !== activeFilter) return false;
+  const filtered = getFilteredDevices();
+
+  if (filtered.length === 0) {
+    grid.innerHTML = '';
+    if (searchQuery || activeFilter !== 'all') {
+      grid.innerHTML = `<div class="no-results">条件に合うデバイスがありません</div>`;
+    }
+    return;
+  }
+
+  grid.innerHTML = isReordering
+    ? filtered.map((device, index) => buildOrderRow(device, {
+      first: index === 0, last: index === filtered.length - 1,
+      globalFirst: device.deviceId === allDevices[0]?.deviceId, saving: isSavingOrder,
+    })).join('')
+    : filtered.map(d => buildDeviceCard(d, acState)).join('');
+}
+
+function getFilteredDevices() {
+  return allDevices.filter(d => {
+    const cfg = getConfig(d.deviceType || d.remoteType || 'Others');
+    if (activeFilter !== 'all' && getDeviceCategory(d) !== activeFilter) return false;
     if (searchQuery) {
       const name = (d.deviceName || '').toLowerCase();
       const type = (d.deviceType || d.remoteType || '').toLowerCase();
@@ -384,364 +238,85 @@ function renderDevices() {
     }
     return true;
   });
-
-  if (filtered.length === 0) {
-    grid.innerHTML = '';
-    if (searchQuery || activeFilter !== 'all') {
-      grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:32px 0;color:var(--text-muted);font-size:12.5px;">
-        条件に合うデバイスがありません
-      </div>`;
-    }
-    return;
-  }
-
-  grid.innerHTML = filtered.map(d => buildDeviceCard(d)).join('');
 }
 
-// =====================================================
-// Build Device Card
-// =====================================================
-function buildDeviceCard(device) {
-  const type = device.deviceType || device.remoteType || 'Others';
-  const cfg = getConfig(/lock/i.test(type) && type !== 'Keypad' ? 'Lock' : type);
-  const iconSvg = ICONS[cfg.icon] || ICONS.remote;
-  const color = cfg.color;
-  const iconBg = hexToRgba(color, 0.15);
-  const status = device.status || {};
-
-  const name = device.deviceName || 'デバイス';
-  const id = device.deviceId;
-
-  // Status badge
-  let badgeHtml = '';
-  let extraHtml = '';
-  let controlsHtml = '';
-
-  // Normalize: any device type containing "Lock" is treated as a lock
-  const normalizedType = /lock/i.test(type) && type !== 'Keypad' ? 'Lock' : type;
-
-  switch (normalizedType) {
-    // ---- Lock ----
-    case 'Lock': {
-      const locked = status.lockState === 'locked';
-      badgeHtml = locked
-        ? `<span class="status-badge locked">施錠中</span>`
-        : `<span class="status-badge unlocked">解錠中</span>`;
-      controlsHtml = `
-        <button class="ctrl-btn unlocked-btn" data-cmd="unlock" data-id="${id}">🔓 解錠</button>
-        <button class="ctrl-btn locked-btn" data-cmd="lock" data-id="${id}">🔒 施錠</button>
-      `;
-      if (status.battery !== undefined) {
-        extraHtml = `<div class="card-sensor"><span class="sensor-item">🔋 <span class="sensor-value">${status.battery}%</span></span></div>`;
-      }
-      break;
-    }
-
-    // ---- Curtain / Blind ----
-    case 'Curtain':
-    case 'Curtain3':
-    case 'Blind Tilt': {
-      // slidePosition: 0 = fully open, 100 = fully closed (SwitchBot API)
-      // openDegree: 0 = fully closed, 100 = fully open (UI representation)
-      const pos = status.slidePosition ?? status.tilt ?? 0;
-      const openDegree = 100 - pos;
-      const moving = status.moving;
-      badgeHtml = moving
-        ? `<span class="status-badge detected">移動中</span>`
-        : pos < 50
-          ? `<span class="status-badge open">開</span>`
-          : `<span class="status-badge close">閉</span>`;
-      extraHtml = `
-        <div class="curtain-pos-wrap">
-          <span class="curtain-pos-label">開度</span>
-          <input type="range" min="0" max="100" value="${openDegree}" class="curtain-slider" data-id="${id}" data-cmd="curtain-pos">
-          <span class="curtain-pos-val">${openDegree}%</span>
-        </div>
-      `;
-      controlsHtml = `
-        <button class="ctrl-btn open-btn" data-cmd="curtain-open" data-id="${id}">↑ 開く</button>
-        <button class="ctrl-btn accent-btn" data-cmd="curtain-pause" data-id="${id}">⏸ 停止</button>
-        <button class="ctrl-btn" data-cmd="curtain-close" data-id="${id}">↓ 閉じる</button>
-      `;
-      break;
-    }
-
-    // ---- Bot ----
-    case 'Bot': {
-      const on = status.power === 'on';
-      badgeHtml = on
-        ? `<span class="status-badge on">ON</span>`
-        : `<span class="status-badge off">OFF</span>`;
-      controlsHtml = `
-        <button class="ctrl-btn active-on" data-cmd="turnOn" data-id="${id}">ON</button>
-        <button class="ctrl-btn active-off" data-cmd="turnOff" data-id="${id}">OFF</button>
-        <button class="ctrl-btn accent-btn icon-only" data-cmd="press" data-id="${id}" title="プレス">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4" fill="currentColor"/></svg>
-        </button>
-      `;
-      break;
-    }
-
-    // ---- Color Bulb / Strip Light / Light (IR) ----
-    case 'Color Bulb':
-    case 'Strip Light':
-    case 'Light': {
-      const on = status.power === 'on';
-      const bright = status.brightness ?? 100;
-      badgeHtml = on
-        ? `<span class="status-badge on">ON</span>`
-        : `<span class="status-badge off">OFF</span>`;
-      if (status.color) {
-        extraHtml = `<div class="card-sensor">
-          <span class="sensor-item">
-            <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:rgb(${status.color.replace(/,/g, ',')});border:1px solid rgba(255,255,255,0.2)"></span>
-            <span class="sensor-value">${bright}%</span>
-          </span>
-        </div>`;
-      } else if (status.brightness !== undefined) {
-        extraHtml = `<div class="card-sensor">
-          <span class="sensor-item">💡 <span class="sensor-value">${bright}%</span></span>
-        </div>`;
-      }
-      controlsHtml = `
-        <button class="ctrl-btn active-on" data-cmd="turnOn" data-id="${id}">ON</button>
-        <button class="ctrl-btn active-off" data-cmd="turnOff" data-id="${id}">OFF</button>
-        <button class="ctrl-btn icon-only" data-cmd="brightnessUp" data-id="${id}" title="明るく">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/><circle cx="12" cy="12" r="5"/></svg>
-        </button>
-        <button class="ctrl-btn icon-only" data-cmd="brightnessDown" data-id="${id}" title="暗く">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/><circle cx="12" cy="12" r="3"/></svg>
-        </button>
-      `;
-      break;
-    }
-
-    // ---- Plug ----
-    case 'Plug':
-    case 'Plug Mini (US)':
-    case 'Plug Mini (JP)': {
-      const on = status.power === 'on';
-      const watt = status.electricityOfDay;
-      badgeHtml = on
-        ? `<span class="status-badge on">ON</span>`
-        : `<span class="status-badge off">OFF</span>`;
-      if (watt !== undefined) {
-        extraHtml = `<div class="card-sensor"><span class="sensor-item">⚡ <span class="sensor-value">${watt} Wh</span></span></div>`;
-      }
-      controlsHtml = `
-        <button class="ctrl-btn active-on" data-cmd="turnOn" data-id="${id}">ON</button>
-        <button class="ctrl-btn active-off" data-cmd="turnOff" data-id="${id}">OFF</button>
-      `;
-      break;
-    }
-
-    // ---- Air Conditioner (IR) ----
-    case 'Air Conditioner': {
-      const ac = acState[id] || { temp: status.temperature || 26, mode: 2 };
-      if (!acState[id]) acState[id] = ac;
-      const modes = ['', 'AUTO', 'COOL', 'HEAT', 'DRY', 'FAN'];
-      badgeHtml = `<span class="status-badge off">IR</span>`;
-      extraHtml = `
-        <div class="card-ac-info">
-          <span class="ac-temp">${ac.temp}<span>°C</span></span>
-          <span class="ac-badge">${modes[ac.mode] || 'COOL'}</span>
-        </div>
-      `;
-      controlsHtml = `
-        <button class="ctrl-btn active-on" data-cmd="acOn" data-id="${id}">ON</button>
-        <button class="ctrl-btn active-off" data-cmd="acOff" data-id="${id}">OFF</button>
-        <button class="ctrl-btn icon-only accent-btn" data-cmd="acTempDown" data-id="${id}" title="温度-">▾</button>
-        <button class="ctrl-btn icon-only open-btn" data-cmd="acTempUp" data-id="${id}" title="温度+">▴</button>
-        <span class="ctrl-break"></span>
-        <button class="ctrl-btn ${ac.mode === 1 ? 'accent-btn' : ''}" data-cmd="acMode" data-mode="1" data-id="${id}">自動</button>
-        <button class="ctrl-btn ${ac.mode === 2 ? 'open-btn' : ''}" data-cmd="acMode" data-mode="2" data-id="${id}">冷房</button>
-        <button class="ctrl-btn ${ac.mode === 3 ? 'locked-btn' : ''}" data-cmd="acMode" data-mode="3" data-id="${id}">暖房</button>
-      `;
-      break;
-    }
-
-    // ---- Fan (IR) ----
-    case 'Fan':
-    case 'DIY Fan': {
-      badgeHtml = `<span class="status-badge off">IR</span>`;
-      controlsHtml = `
-        <button class="ctrl-btn active-on" data-cmd="turnOn" data-id="${id}">ON</button>
-        <button class="ctrl-btn active-off" data-cmd="turnOff" data-id="${id}">OFF</button>
-        <button class="ctrl-btn accent-btn" data-cmd="swing" data-id="${id}">首振</button>
-        <span class="ctrl-break"></span>
-        <button class="ctrl-btn" data-cmd="fanLow" data-id="${id}">弱</button>
-        <button class="ctrl-btn" data-cmd="fanMid" data-id="${id}">中</button>
-        <button class="ctrl-btn" data-cmd="fanHigh" data-id="${id}">強</button>
-      `;
-      break;
-    }
-
-    // ---- TV ----
-    case 'TV':
-    case 'Set Top Box':
-    case 'DVD Player': {
-      badgeHtml = `<span class="status-badge off">IR</span>`;
-      controlsHtml = `
-        <button class="ctrl-btn active-on" data-cmd="turnOn" data-id="${id}">ON</button>
-        <button class="ctrl-btn active-off" data-cmd="turnOff" data-id="${id}">OFF</button>
-        <button class="ctrl-btn icon-only" data-cmd="volumeAdd" data-id="${id}" title="音量+">🔊+</button>
-        <button class="ctrl-btn icon-only" data-cmd="volumeSub" data-id="${id}" title="音量-">🔉-</button>
-        <button class="ctrl-btn icon-only" data-cmd="channelAdd" data-id="${id}" title="CH+">CH+</button>
-        <button class="ctrl-btn icon-only" data-cmd="channelSub" data-id="${id}" title="CH-">CH-</button>
-      `;
-      break;
-    }
-
-    // ---- Sensor only: Meter, Motion, Contact ----
-    case 'Meter':
-    case 'Meter Plus':
-    case 'Outdoor Meter': {
-      const temp = status.temperature ?? '---';
-      const humid = status.humidity ?? '---';
-      badgeHtml = `<span class="status-badge on">アクティブ</span>`;
-      extraHtml = `
-        <div class="card-sensor">
-          <span class="sensor-item">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg>
-            <span class="sensor-value">${temp}°C</span>
-          </span>
-          <span class="sensor-item">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L6 10a6 6 0 0 0 12 0L12 2z"/></svg>
-            <span class="sensor-value">${humid}%</span>
-          </span>
-          ${status.battery !== undefined ? `<span class="sensor-item">🔋 <span class="sensor-value">${status.battery}%</span></span>` : ''}
-        </div>
-      `;
-      break;
-    }
-
-    case 'Hub 2': {
-      const temp = status.temperature ?? '---';
-      const humid = status.humidity ?? '---';
-      badgeHtml = `<span class="status-badge on">接続中</span>`;
-      extraHtml = `
-        <div class="card-sensor">
-          <span class="sensor-item">🌡 <span class="sensor-value">${temp}°C</span></span>
-          <span class="sensor-item">💧 <span class="sensor-value">${humid}%</span></span>
-        </div>
-      `;
-      break;
-    }
-
-    case 'Motion Sensor': {
-      const detected = status.moveDetected;
-      badgeHtml = detected
-        ? `<span class="status-badge detected">検知中</span>`
-        : `<span class="status-badge undetected">待機中</span>`;
-      if (status.battery !== undefined) {
-        extraHtml = `<div class="card-sensor"><span class="sensor-item">🔋 <span class="sensor-value">${status.battery}%</span></span></div>`;
-      }
-      break;
-    }
-
-    case 'Contact Sensor': {
-      const open = status.openState === 'open';
-      badgeHtml = open
-        ? `<span class="status-badge open">開</span>`
-        : `<span class="status-badge close">閉</span>`;
-      if (status.battery !== undefined) {
-        extraHtml = `<div class="card-sensor"><span class="sensor-item">🔋 <span class="sensor-value">${status.battery}%</span></span></div>`;
-      }
-      break;
-    }
-
-    case 'Water Detector': {
-      const wet = status.status === 1;
-      badgeHtml = wet
-        ? `<span class="status-badge detected">水検知！</span>`
-        : `<span class="status-badge undetected">正常</span>`;
-      break;
-    }
-
-    case 'CO2 Sensor':
-    case 'MeterPro(CO2)': {
-      const co2 = status.CO2 ?? status.co2 ?? '---';
-      const temp = status.temperature ?? '---';
-      const humid = status.humidity ?? '---';
-      badgeHtml = `<span class="status-badge on">アクティブ</span>`;
-      extraHtml = `
-        <div class="card-sensor">
-          <span class="sensor-item">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8h3a2 2 0 0 1 0 4H3"/><path d="M10 8h1a2 2 0 0 1 2 2v0a2 2 0 0 1-2 2h-1V8z"/><path d="M17 8a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2"/></svg>
-            <span class="sensor-value">${co2} ppm</span>
-          </span>
-          <span class="sensor-item">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg>
-            <span class="sensor-value">${temp}°C</span>
-          </span>
-          <span class="sensor-item">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L6 10a6 6 0 0 0 12 0L12 2z"/></svg>
-            <span class="sensor-value">${humid}%</span>
-          </span>
-        </div>
-      `;
-      // controlsHtml は意図的に設定しない（操作ボタンなし）
-      break;
-    }
-
-    case 'Humidifier': {
-      const on = status.power === 'on';
-      const humidity = status.humidity ?? '---';
-      const target = status.nebulizationEfficiency ?? '---';
-      badgeHtml = on ? `<span class="status-badge on">ON</span>` : `<span class="status-badge off">OFF</span>`;
-      extraHtml = `<div class="card-sensor">
-        <span class="sensor-item">💧 <span class="sensor-value">${humidity}%</span></span>
-        <span class="sensor-item">目標 <span class="sensor-value">${target}%</span></span>
-      </div>`;
-      controlsHtml = `
-        <button class="ctrl-btn active-on" data-cmd="turnOn" data-id="${id}">ON</button>
-        <button class="ctrl-btn active-off" data-cmd="turnOff" data-id="${id}">OFF</button>
-      `;
-      break;
-    }
-
-    case 'Air Purifier': {
-      badgeHtml = `<span class="status-badge off">IR</span>`;
-      controlsHtml = `
-        <button class="ctrl-btn active-on" data-cmd="turnOn" data-id="${id}">ON</button>
-        <button class="ctrl-btn active-off" data-cmd="turnOff" data-id="${id}">OFF</button>
-      `;
-      break;
-    }
-
-    default: {
-      const isSensorOnly = cfg.cat === 'sensor' || cfg.cat === 'hub';
-      const on = status.power === 'on';
-      badgeHtml = device.isIR
-        ? `<span class="status-badge off">IR</span>`
-        : on ? `<span class="status-badge on">ON</span>` : `<span class="status-badge off">OFF</span>`;
-      if (!isSensorOnly && (!device.isIR || normalizedType === 'Others')) {
-        controlsHtml = `
-          <button class="ctrl-btn active-on" data-cmd="turnOn" data-id="${id}">ON</button>
-          <button class="ctrl-btn active-off" data-cmd="turnOff" data-id="${id}">OFF</button>
-        `;
-      }
-      break;
+async function commitDeviceOrder(devices, focusId, action) {
+  if (isSavingOrder || devices.every((device, index) => device === allDevices[index])) return;
+  isSavingOrder = true;
+  $('reorderBtn').disabled = true;
+  $('refreshBtn').disabled = true;
+  $('orderHint').textContent = '並び順を保存しています…';
+  renderDevices();
+  try {
+    const ids = devices.map(device => device.deviceId);
+    await saveDeviceOrder(ids);
+    savedDeviceOrder = ids;
+    allDevices = devices;
+    $('orderHint').textContent = '並び順を保存しました。閉じてもこの順番で表示します。';
+  } catch (error) {
+    $('orderHint').textContent = '保存できませんでした。もう一度お試しください。';
+    showToast(`並び順の保存エラー: ${error.message}`, 'error');
+  } finally {
+    isSavingOrder = false;
+    $('reorderBtn').disabled = allDevices.length < 2;
+    $('refreshBtn').disabled = false;
+    renderDevices();
+    const row = [...$('deviceGrid').querySelectorAll('.order-row')].find(row => row.dataset.deviceId === focusId);
+    if (row && action) {
+      const preferred = row.querySelector(`[data-order-action="${action}"]`);
+      const button = preferred && !preferred.disabled ? preferred : row.querySelector('.order-btn:not(:disabled)');
+      button?.focus();
     }
   }
+}
 
-  return `
-    <div class="device-card" data-device-id="${id}" data-type="${type}"
-         style="--card-accent:${color};">
-      <div class="card-top">
-        <div class="device-icon-wrap" style="--icon-bg:${iconBg};--icon-color:${color};">
-          ${iconSvg}
-        </div>
-        <div class="card-info">
-          <div class="device-name" title="${name}">${name}</div>
-          <div class="device-type-label">${cfg.label}</div>
-        </div>
-        ${badgeHtml}
-      </div>
-      ${extraHtml}
-      ${controlsHtml ? `<div class="card-controls">${controlsHtml}</div>` : ''}
-    </div>
-  `;
+function setupOrderListeners() {
+  const grid = $('deviceGrid');
+  grid.addEventListener('click', async e => {
+    const button = e.target.closest('[data-order-action]');
+    if (!isReordering || isSavingOrder || !button || button.disabled) return;
+    const id = button.dataset.id;
+    const action = button.dataset.orderAction;
+    const visibleIds = getFilteredDevices().map(device => device.deviceId);
+    const index = visibleIds.indexOf(id);
+    const target = visibleIds[index + (action === 'up' ? -1 : 1)];
+    const devices = action === 'first' ? moveDeviceToTop(allDevices, id)
+      : moveVisibleDevice(allDevices, visibleIds, id, target);
+    await commitDeviceOrder(devices, id, action);
+  });
+  const clearDrag = () => {
+    draggedDeviceId = null;
+    grid.querySelectorAll('.dragging, .drop-target').forEach(row => row.classList.remove('dragging', 'drop-target'));
+  };
+  grid.addEventListener('dragstart', e => {
+    const row = e.target.closest('.order-row');
+    if (!isReordering || isSavingOrder || !row) { e.preventDefault(); return; }
+    draggedDeviceId = row.dataset.deviceId;
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', draggedDeviceId);
+    row.classList.add('dragging');
+  });
+  grid.addEventListener('dragover', e => {
+    const row = e.target.closest('.order-row');
+    if (!draggedDeviceId || !row || isSavingOrder) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    grid.querySelectorAll('.drop-target').forEach(item => item.classList.remove('drop-target'));
+    if (row.dataset.deviceId !== draggedDeviceId) row.classList.add('drop-target');
+  });
+  grid.addEventListener('drop', async e => {
+    const row = e.target.closest('.order-row');
+    if (!draggedDeviceId || !row || isSavingOrder) return;
+    e.preventDefault();
+    const id = draggedDeviceId;
+    const devices = moveVisibleDevice(allDevices, getFilteredDevices().map(device => device.deviceId), id, row.dataset.deviceId);
+    clearDrag();
+    await commitDeviceOrder(devices, id);
+  });
+  grid.addEventListener('dragend', clearDrag);
+  grid.addEventListener('dragleave', e => {
+    if (!grid.contains(e.relatedTarget)) grid.querySelectorAll('.drop-target').forEach(row => row.classList.remove('drop-target'));
+  });
 }
 
 // =====================================================
@@ -757,6 +332,7 @@ function setupGridListeners() {
   grid.addEventListener('click', async (e) => {
     const btn = e.target.closest('[data-cmd]');
     if (!btn) return;
+    if (isReordering) return;
     const cmd = btn.dataset.cmd;
     const id = btn.dataset.id;
     const device = findDevice(id);
@@ -894,7 +470,8 @@ async function executeSetPosition(device, pos, slider) {
 }
 
 function refreshCard(device, cardEl) {
-  const newHtml = buildDeviceCard(device);
+  if (isReordering || !cardEl.isConnected) return;
+  const newHtml = buildDeviceCard(device, acState);
   const tmp = document.createElement('div');
   tmp.innerHTML = newHtml;
   const newCard = tmp.firstElementChild;
@@ -920,6 +497,7 @@ function setCardLoading(card, loading) {
 // UI state helpers
 // =====================================================
 function showLoading() {
+  $('reorderBtn').disabled = true;
   $('loadingState').classList.remove('hidden');
   $('errorState').classList.add('hidden');
   $('emptyState').classList.add('hidden');
@@ -929,13 +507,14 @@ function showLoading() {
 function showGrid() {
   $('loadingState').classList.add('hidden');
   $('errorState').classList.add('hidden');
-  $('emptyState').classList.add('hidden');
-  $('deviceGrid').classList.remove('hidden');
+  $('emptyState').classList.toggle('hidden', allDevices.length > 0);
+  $('deviceGrid').classList.toggle('hidden', allDevices.length === 0);
 }
 
 function showError(msg) {
   $('loadingState').classList.add('hidden');
   $('errorState').classList.remove('hidden');
+  $('emptyState').classList.add('hidden');
   $('deviceGrid').classList.add('hidden');
   $('errorMessage').textContent = msg;
 }
@@ -945,9 +524,4 @@ function updateFooter() {
   if (lastUpdated) {
     $('lastUpdated').textContent = `更新: ${timeAgo(lastUpdated)}`;
   }
-  setInterval(() => {
-    if (lastUpdated) {
-      $('lastUpdated').textContent = `更新: ${timeAgo(lastUpdated)}`;
-    }
-  }, 10000);
 }

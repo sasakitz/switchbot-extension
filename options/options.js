@@ -1,8 +1,11 @@
 // options.js - Settings page logic
-const browserAPI = (typeof browser !== 'undefined') ? browser : chrome;
+import { getCredentials, saveCredentials as storeCredentials, clearCredentials as removeCredentials } from '../utils/storage.js';
+import { testConnection as testApiConnection } from '../utils/api.js';
+import { browserAPI } from '../utils/browser.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-  loadSavedCredentials();
+  loadSavedCredentials().catch(err => showToast(`設定の読み込みに失敗しました: ${err.message}`, 'error'));
+  document.getElementById('appVersion').textContent = `Version ${browserAPI.runtime.getManifest().version}`;
   setupNavigation();
   setupForm();
   setupEyeButtons();
@@ -15,9 +18,11 @@ function setupNavigation() {
   document.querySelectorAll('.nav-item').forEach(btn => {
     btn.addEventListener('click', () => {
       const sectionId = btn.dataset.section;
-      document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(b => {
+        b.classList.toggle('active', b === btn);
+        b.setAttribute('aria-pressed', String(b === btn));
+      });
       document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-      btn.classList.add('active');
       document.getElementById(`section-${sectionId}`).classList.add('active');
     });
   });
@@ -27,17 +32,17 @@ function setupNavigation() {
 // Load credentials
 // =====================================================
 async function loadSavedCredentials() {
-  const result = await browserAPI.storage.local.get(['switchbot_token', 'switchbot_secret']);
+  const { token, secret } = await getCredentials();
   const tokenInput = document.getElementById('tokenInput');
   const secretInput = document.getElementById('secretInput');
 
-  if (result.switchbot_token) {
-    tokenInput.value = result.switchbot_token;
+  if (token) {
+    tokenInput.value = token;
     tokenInput.classList.add('valid');
     setHint('tokenHint', '保存済み ✓', 'success');
   }
-  if (result.switchbot_secret) {
-    secretInput.value = result.switchbot_secret;
+  if (secret) {
+    secretInput.value = secret;
     secretInput.classList.add('valid');
     setHint('secretHint', '保存済み ✓', 'success');
   }
@@ -70,8 +75,12 @@ function setupForm() {
 
   // Clear
   clearBtn.addEventListener('click', async () => {
-    if (!confirm('APIトークンとシークレットを削除しますか？')) return;
-    await clearCredentials();
+    if (!confirm('APIトークン・シークレット・デバイスキャッシュ・保存した並び順を削除しますか？')) return;
+    try {
+      await clearCredentials();
+    } catch (err) {
+      showToast(`削除エラー: ${err.message}`, 'error');
+    }
   });
 }
 
@@ -122,15 +131,15 @@ async function saveCredentials() {
   saveBtn.disabled = true;
 
   try {
-    await browserAPI.storage.local.set({ switchbot_token: token, switchbot_secret: secret });
-
-    // Clear device cache so popup reloads
-    await browserAPI.storage.local.remove('device_cache');
+    await storeCredentials(token, secret);
 
     setHint('tokenHint', '保存済み ✓', 'success');
     setHint('secretHint', '保存済み ✓', 'success');
-    document.getElementById('tokenInput').classList.add('valid');
-    document.getElementById('secretInput').classList.add('valid');
+    for (const id of ['tokenInput', 'secretInput']) {
+      const input = document.getElementById(id);
+      input.classList.remove('invalid');
+      input.classList.add('valid');
+    }
 
     showToast('✓ 設定を保存しました', 'success');
   } catch (err) {
@@ -162,49 +171,17 @@ async function testConnection() {
   resultEl.classList.add('hidden');
 
   try {
-    const t = Date.now();
-    const nonce = crypto.randomUUID();
-    const data = token + t + nonce;
-
-    const encoder = new TextEncoder();
-    const key = await crypto.subtle.importKey(
-      'raw',
-      encoder.encode(secret),
-      { name: 'HMAC', hash: 'SHA-256' },
-      false,
-      ['sign']
-    );
-    const signature = await crypto.subtle.sign('HMAC', key, encoder.encode(data));
-    const sign = btoa(String.fromCharCode(...new Uint8Array(signature)));
-
-    const resp = await fetch('https://api.switch-bot.com/v1.1/devices', {
-      headers: {
-        Authorization: token,
-        sign,
-        nonce,
-        t: String(t),
-        'Content-Type': 'application/json; charset=utf8',
-      },
-    });
-
-    const json = await resp.json();
-
-    if (json.statusCode === 100) {
-      const physCount = (json.body?.deviceList || []).length;
-      const irCount = (json.body?.infraredRemoteList || []).length;
-      resultInner.className = 'test-result-inner success';
-      resultInner.innerHTML = `
-        ✓ 接続成功！<br>
-        <span style="font-size:12px;opacity:0.85;">
-          物理デバイス: ${physCount}台 ／ IRリモコン: ${irCount}台
-        </span>
-      `;
-      showToast('✓ 接続成功', 'success');
-    } else {
-      resultInner.className = 'test-result-inner error';
-      resultInner.textContent = `✗ APIエラー: ${json.message || json.statusCode}`;
-      showToast('接続失敗', 'error');
-    }
+    const devices = await testApiConnection({ token, secret });
+    const physCount = (devices?.deviceList || []).length;
+    const irCount = (devices?.infraredRemoteList || []).length;
+    resultInner.className = 'test-result-inner success';
+    resultInner.innerHTML = `
+      ✓ 接続成功！<br>
+      <span style="font-size:12px;opacity:0.85;">
+        物理デバイス: ${physCount}台 ／ IRリモコン: ${irCount}台
+      </span>
+    `;
+    showToast('✓ 接続成功', 'success');
   } catch (err) {
     resultInner.className = 'test-result-inner error';
     resultInner.textContent = `✗ エラー: ${err.message}`;
@@ -220,7 +197,7 @@ async function testConnection() {
 // Clear credentials
 // =====================================================
 async function clearCredentials() {
-  await browserAPI.storage.local.remove(['switchbot_token', 'switchbot_secret', 'device_cache']);
+  await removeCredentials();
 
   document.getElementById('tokenInput').value = '';
   document.getElementById('secretInput').value = '';
@@ -229,6 +206,7 @@ async function clearCredentials() {
   setHint('tokenHint', '');
   setHint('secretHint', '');
   document.getElementById('testResult').classList.add('hidden');
+  document.querySelectorAll('.input-eye').forEach(btn => setPasswordVisibility(btn, false));
 
   showToast('認証情報を削除しました', 'info');
 }
@@ -239,22 +217,20 @@ async function clearCredentials() {
 function setupEyeButtons() {
   document.querySelectorAll('.input-eye').forEach(btn => {
     btn.addEventListener('click', () => {
-      const targetId = btn.dataset.target;
-      const input = document.getElementById(targetId);
-      const showIcon = btn.querySelector('.eye-show');
-      const hideIcon = btn.querySelector('.eye-hide');
-
-      if (input.type === 'password') {
-        input.type = 'text';
-        showIcon.classList.add('hidden');
-        hideIcon.classList.remove('hidden');
-      } else {
-        input.type = 'password';
-        showIcon.classList.remove('hidden');
-        hideIcon.classList.add('hidden');
-      }
+      const input = document.getElementById(btn.dataset.target);
+      setPasswordVisibility(btn, input.type === 'password');
     });
   });
+}
+
+function setPasswordVisibility(btn, visible) {
+  const input = document.getElementById(btn.dataset.target);
+  const label = document.querySelector(`label[for="${input.id}"]`).textContent.trim();
+  input.type = visible ? 'text' : 'password';
+  btn.querySelector('.eye-show').classList.toggle('hidden', visible);
+  btn.querySelector('.eye-hide').classList.toggle('hidden', !visible);
+  btn.setAttribute('aria-pressed', String(visible));
+  btn.setAttribute('aria-label', `${label}を${visible ? '隠す' : '表示'}`);
 }
 
 // =====================================================

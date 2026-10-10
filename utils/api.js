@@ -1,5 +1,5 @@
 // SwitchBot API v1.1 Client
-import { browserAPI } from './browser.js';
+import { getCredentials } from './storage.js';
 
 const SWITCHBOT_API_BASE = 'https://api.switch-bot.com/v1.1';
 
@@ -23,16 +23,8 @@ async function generateSign(token, secret) {
   return { t, nonce, sign };
 }
 
-async function getCredentials() {
-  const result = await browserAPI.storage.local.get(['switchbot_token', 'switchbot_secret']);
-  return {
-    token: result.switchbot_token || '',
-    secret: result.switchbot_secret || '',
-  };
-}
-
-async function apiRequest(endpoint, method = 'GET', body = null) {
-  const { token, secret } = await getCredentials();
+async function apiRequest(endpoint, method = 'GET', body = null, credentials = null) {
+  const { token, secret } = credentials ?? await getCredentials();
 
   if (!token || !secret) {
     const err = new Error('API認証情報が未設定です。設定画面でトークンとシークレットを入力してください。');
@@ -87,8 +79,8 @@ export async function sendCommand(deviceId, command, parameter = 'default', comm
   });
 }
 
-export async function testConnection() {
-  return apiRequest('/devices');
+export async function testConnection(credentials = null) {
+  return apiRequest('/devices', 'GET', null, credentials);
 }
 
 export { getCredentials };
