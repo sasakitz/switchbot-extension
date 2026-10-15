@@ -37,6 +37,14 @@ function popup(devices, filter = 'all', query = '', reordering = false) {
   const filters = getAvailableFilters(registeredDevices);
   html = html.replace(/(<div class="filter-tabs"[^>]*>)[\s\S]*?(<\/div>)/,
     (_, open, close) => open + buildFilterTabs(filters, filter) + close);
+  const conditions = [];
+  if (filter !== 'all') conditions.push(filters.find(item => item.id === filter).label);
+  if (query) conditions.push(`「${query}」`);
+  if (conditions.length) {
+    html = html.replace('class="device-filters" id="deviceFilters"', 'class="device-filters has-filters" id="deviceFilters" open')
+      .replace('id="filterSummary">検索・絞り込み', `id="filterSummary">絞り込み中: ${conditions.join('・')}`)
+      .replace('class="filter-reset hidden"', 'class="filter-reset"');
+  }
   if (reordering) html = html.replace('id="reorderBtn" aria-pressed="false">並び替え', 'id="reorderBtn" aria-pressed="true">完了').replace('class="order-hint hidden"', 'class="order-hint"').replace('class="device-grid" id="deviceGrid"', 'class="device-grid" id="deviceGrid" role="list"');
   if (query) html = html.replace('id="searchInput"', `value="${query}" id="searchInput"`).replace('class="search-clear hidden"', 'class="search-clear"');
   return html;
@@ -100,7 +108,7 @@ write('source/marquee.html', `<!DOCTYPE html><html lang="ja"><head><meta charset
 for (const size of [16, 32, 48, 128]) fs.copyFileSync(path.join(root, `icons/icon${size}.png`), path.join(kit, 'icons', `icon${size}.png`));
 // Store icon: 96px artwork centered in a 128px transparent canvas (assembled by render-assets.py).
 fs.copyFileSync(path.join(root, 'icons/icon.svg'), path.join(kit, 'icons', 'icon.svg'));
-write('text/build-info.json', JSON.stringify({ date: '2026-10-11', version: manifest.version, uiLanguage: 'ja', usesSampleData: true, features: ['custom-device-order', 'registered-device-categories'], sizes: { screenshots: [1280, 800], promo: [440, 280], marquee: [1400, 560], storeIcon: [128, 128] } }, null, 2) + '\n');
+write('text/build-info.json', JSON.stringify({ date: '2026-10-15', version: manifest.version, uiLanguage: 'ja', usesSampleData: true, features: ['custom-device-order', 'registered-device-categories', 'collapsible-device-filters', 'header-device-order'], sizes: { screenshots: [1280, 800], promo: [440, 280], marquee: [1400, 560], storeIcon: [128, 128] } }, null, 2) + '\n');
 write('source/render-manifest.json', JSON.stringify([
   ...scenes.map(([name]) => ({ source: `${name}.html`, output: `screenshots/${name}.png`, width: 1280, height: 800 })),
   { source: 'promo-tile.html', output: 'promotional/promo-tile-440x280.png', width: 440, height: 280 },

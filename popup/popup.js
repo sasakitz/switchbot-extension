@@ -90,6 +90,16 @@ function setupEventListeners() {
     renderDevices();
   });
 
+  $('filterReset').addEventListener('click', () => {
+    activeFilter = 'all';
+    searchQuery = '';
+    $('searchInput').value = '';
+    $('searchClear').classList.add('hidden');
+    updateFilterSelection();
+    renderDevices();
+    $('searchInput').focus();
+  });
+
   // Search
   const searchInput = $('searchInput');
   searchInput.addEventListener('input', () => {
@@ -203,7 +213,22 @@ function updateFilterTabs() {
   $('filterTabs').replaceChildren(createSafeFragment(buildFilterTabs(filters, activeFilter)));
 }
 
+function updateFilterSummary() {
+  const conditions = [];
+  if (activeFilter !== 'all') {
+    const category = getAvailableFilters(allDevices).find(filter => filter.id === activeFilter);
+    if (category) conditions.push(category.label);
+  }
+  if (searchQuery) conditions.push(`「${$('searchInput').value.trim()}」`);
+  const label = conditions.length ? `絞り込み中: ${conditions.join('・')}` : '検索・絞り込み';
+  $('filterSummary').textContent = label;
+  $('filterSummary').title = label;
+  $('deviceFilters').classList.toggle('has-filters', conditions.length > 0);
+  $('filterReset').classList.toggle('hidden', conditions.length === 0);
+}
+
 function renderDevices() {
+  updateFilterSummary();
   const grid = $('deviceGrid');
   grid.setAttribute('aria-busy', String(isSavingOrder));
   if (isReordering) grid.setAttribute('role', 'list');

@@ -31,10 +31,16 @@
             <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
           </svg>
         </button>
+        <button class="reorder-toggle" id="reorderBtn" aria-pressed="false" disabled>並び替え</button>
       </div>
     </header>
 
-    <div class="section-heading"><h1>デバイス</h1><button class="reorder-toggle" id="reorderBtn" aria-pressed="false" disabled>並び替え</button></div>
+    <details class="device-filters" id="deviceFilters">
+      <summary class="section-heading">
+        <h1>デバイス</h1>
+        <span class="filter-toggle"><span class="filter-summary" id="filterSummary">検索・絞り込み</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></span>
+      </summary>
+      <div class="filter-panel">
 
     <!-- Search -->
     <div class="search-wrap">
@@ -50,6 +56,10 @@
     <div class="filter-tabs" id="filterTabs" role="group" aria-label="デバイスのカテゴリ">
       <button class="tab active" data-filter="all" aria-pressed="true">すべて</button>
     </div>
+
+        <button class="filter-reset hidden" id="filterReset" type="button">条件をすべて解除</button>
+      </div>
+    </details>
 
     <p class="order-hint hidden" id="orderHint" role="status">ドラッグか矢印で移動。先頭ボタンで一番上へ。</p>
 

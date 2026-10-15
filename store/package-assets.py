@@ -50,7 +50,7 @@ files = sorted(p for p in kit.rglob('*') if p.is_file() and 'source' not in p.re
                and (args.include_review or p.relative_to(kit).as_posix() in public_files))
 items = [{'file': str(p.relative_to(kit)), 'bytes': p.stat().st_size,
           'sha256': hashlib.sha256(p.read_bytes()).hexdigest()} for p in files]
-(kit / 'assets-manifest.json').write_text(json.dumps({'date': '2026-10-11', 'files': items}, indent=2) + '\n')
+(kit / 'assets-manifest.json').write_text(json.dumps({'date': '2026-10-15', 'files': items}, indent=2) + '\n')
 (kit / 'SHA256SUMS.txt').write_text(''.join(f"{item['sha256']}  {item['file']}\n" for item in items))
 archive = store / ('switchbot-store-review-kit.zip' if args.include_review else 'switchbot-store-listing-kit.zip')
 with zipfile.ZipFile(archive, 'w', zipfile.ZIP_DEFLATED) as output:
