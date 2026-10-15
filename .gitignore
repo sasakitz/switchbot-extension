@@ -1,6 +1,5 @@
-# 公開用ポリシー・説明・生成ツール以外のストア資料はローカル管理
+# Store build inputs and outputs
 /store/*
-!/store/README.md
 !/store/privacy-policy.html
 !/store/build-assets.mjs
 !/store/render-assets.py
