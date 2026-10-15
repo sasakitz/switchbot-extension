@@ -126,7 +126,7 @@ async function saveCredentials() {
     return;
   }
 
-  const origContent = saveBtn.innerHTML;
+  const origContent = [...saveBtn.childNodes].map(node => node.cloneNode(true));
   saveBtn.innerHTML = `<span class="spinner-inline"></span> 保存中...`;
   saveBtn.disabled = true;
 
@@ -145,7 +145,7 @@ async function saveCredentials() {
   } catch (err) {
     showToast(`保存エラー: ${err.message}`, 'error');
   } finally {
-    saveBtn.innerHTML = origContent;
+    saveBtn.replaceChildren(...origContent);
     saveBtn.disabled = false;
   }
 }
@@ -165,29 +165,28 @@ async function testConnection() {
     return;
   }
 
-  const origContent = testBtn.innerHTML;
+  const origContent = [...testBtn.childNodes].map(node => node.cloneNode(true));
   testBtn.innerHTML = `<span class="spinner-inline"></span> テスト中...`;
   testBtn.disabled = true;
   resultEl.classList.add('hidden');
 
   try {
     const devices = await testApiConnection({ token, secret });
-    const physCount = (devices?.deviceList || []).length;
-    const irCount = (devices?.infraredRemoteList || []).length;
+    const physCount = Array.isArray(devices?.deviceList) ? devices.deviceList.length : 0;
+    const irCount = Array.isArray(devices?.infraredRemoteList) ? devices.infraredRemoteList.length : 0;
     resultInner.className = 'test-result-inner success';
-    resultInner.innerHTML = `
-      ✓ 接続成功！<br>
-      <span style="font-size:12px;opacity:0.85;">
-        物理デバイス: ${physCount}台 ／ IRリモコン: ${irCount}台
-      </span>
-    `;
+    const counts = document.createElement('span');
+    counts.style.fontSize = '12px';
+    counts.style.opacity = '0.85';
+    counts.textContent = `物理デバイス: ${physCount}台 ／ IRリモコン: ${irCount}台`;
+    resultInner.replaceChildren('✓ 接続成功！', document.createElement('br'), counts);
     showToast('✓ 接続成功', 'success');
   } catch (err) {
     resultInner.className = 'test-result-inner error';
     resultInner.textContent = `✗ エラー: ${err.message}`;
     showToast('接続テスト失敗', 'error');
   } finally {
-    testBtn.innerHTML = origContent;
+    testBtn.replaceChildren(...origContent);
     testBtn.disabled = false;
     resultEl.classList.remove('hidden');
   }

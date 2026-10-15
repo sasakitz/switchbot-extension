@@ -40,7 +40,7 @@ export function buildDeviceCard(device, acState = {}) {
         <button class="ctrl-btn locked-btn" data-cmd="lock" data-id="${id}">施錠</button>
       `;
       if (status.battery !== undefined) {
-        extraHtml = `<div class="card-sensor"><span class="sensor-item">${ICONS.battery} <span class="sensor-value">${status.battery}%</span></span></div>`;
+        extraHtml = `<div class="card-sensor"><span class="sensor-item">${ICONS.battery} <span class="sensor-value">${escapeHtml(status.battery)}%</span></span></div>`;
       }
       break;
     }
@@ -99,16 +99,16 @@ export function buildDeviceCard(device, acState = {}) {
       badgeHtml = on
         ? `<span class="status-badge on">ON</span>`
         : `<span class="status-badge off">OFF</span>`;
-      if (status.color) {
+      if (typeof status.color === 'string' && /^\d{1,3},\d{1,3},\d{1,3}$/.test(status.color) && status.color.split(',').every(value => Number(value) <= 255)) {
         extraHtml = `<div class="card-sensor">
           <span class="sensor-item">
             <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:rgb(${status.color.replace(/,/g, ',')});border:1px solid rgba(255,255,255,0.2)"></span>
-            <span class="sensor-value">${bright}%</span>
+            <span class="sensor-value">${escapeHtml(bright)}%</span>
           </span>
         </div>`;
       } else if (status.brightness !== undefined) {
         extraHtml = `<div class="card-sensor">
-          <span class="sensor-item">${ICONS.bulb} <span class="sensor-value">${bright}%</span></span>
+          <span class="sensor-item">${ICONS.bulb} <span class="sensor-value">${escapeHtml(bright)}%</span></span>
         </div>`;
       }
       controlsHtml = `
@@ -134,7 +134,7 @@ export function buildDeviceCard(device, acState = {}) {
         ? `<span class="status-badge on">ON</span>`
         : `<span class="status-badge off">OFF</span>`;
       if (watt !== undefined) {
-        extraHtml = `<div class="card-sensor"><span class="sensor-item">${ICONS.bolt} <span class="sensor-value">${watt} Wh</span></span></div>`;
+        extraHtml = `<div class="card-sensor"><span class="sensor-item">${ICONS.bolt} <span class="sensor-value">${escapeHtml(watt)} Wh</span></span></div>`;
       }
       controlsHtml = `
         <button class="ctrl-btn active-on" data-cmd="turnOn" data-id="${id}">ON</button>
@@ -151,7 +151,7 @@ export function buildDeviceCard(device, acState = {}) {
       badgeHtml = `<span class="status-badge off">IR</span>`;
       extraHtml = `
         <div class="card-ac-info">
-          <span class="ac-temp">${ac.temp}<span>°C</span></span>
+          <span class="ac-temp">${escapeHtml(ac.temp)}<span>°C</span></span>
           <span class="ac-badge">${modes[ac.mode] || 'COOL'}</span>
         </div>
       `;
@@ -211,13 +211,13 @@ export function buildDeviceCard(device, acState = {}) {
         <div class="card-sensor">
           <span class="sensor-item">
             ${ICONS.meter}
-            <span class="sensor-value">${temp}°C</span>
+            <span class="sensor-value">${escapeHtml(temp)}°C</span>
           </span>
           <span class="sensor-item">
             ${ICONS.water}
-            <span class="sensor-value">${humid}%</span>
+            <span class="sensor-value">${escapeHtml(humid)}%</span>
           </span>
-          ${status.battery !== undefined ? `<span class="sensor-item">${ICONS.battery} <span class="sensor-value">${status.battery}%</span></span>` : ''}
+          ${status.battery !== undefined ? `<span class="sensor-item">${ICONS.battery} <span class="sensor-value">${escapeHtml(status.battery)}%</span></span>` : ''}
         </div>
       `;
       break;
@@ -229,8 +229,8 @@ export function buildDeviceCard(device, acState = {}) {
       badgeHtml = `<span class="status-badge on">接続中</span>`;
       extraHtml = `
         <div class="card-sensor">
-          <span class="sensor-item">${ICONS.meter} <span class="sensor-value">${temp}°C</span></span>
-          <span class="sensor-item">${ICONS.water} <span class="sensor-value">${humid}%</span></span>
+          <span class="sensor-item">${ICONS.meter} <span class="sensor-value">${escapeHtml(temp)}°C</span></span>
+          <span class="sensor-item">${ICONS.water} <span class="sensor-value">${escapeHtml(humid)}%</span></span>
         </div>
       `;
       break;
@@ -242,7 +242,7 @@ export function buildDeviceCard(device, acState = {}) {
         ? `<span class="status-badge detected">検知中</span>`
         : `<span class="status-badge undetected">待機中</span>`;
       if (status.battery !== undefined) {
-        extraHtml = `<div class="card-sensor"><span class="sensor-item">${ICONS.battery} <span class="sensor-value">${status.battery}%</span></span></div>`;
+        extraHtml = `<div class="card-sensor"><span class="sensor-item">${ICONS.battery} <span class="sensor-value">${escapeHtml(status.battery)}%</span></span></div>`;
       }
       break;
     }
@@ -253,7 +253,7 @@ export function buildDeviceCard(device, acState = {}) {
         ? `<span class="status-badge open">開</span>`
         : `<span class="status-badge close">閉</span>`;
       if (status.battery !== undefined) {
-        extraHtml = `<div class="card-sensor"><span class="sensor-item">${ICONS.battery} <span class="sensor-value">${status.battery}%</span></span></div>`;
+        extraHtml = `<div class="card-sensor"><span class="sensor-item">${ICONS.battery} <span class="sensor-value">${escapeHtml(status.battery)}%</span></span></div>`;
       }
       break;
     }
@@ -276,15 +276,15 @@ export function buildDeviceCard(device, acState = {}) {
         <div class="card-sensor">
           <span class="sensor-item">
             ${ICONS.co2}
-            <span class="sensor-value">${co2} ppm</span>
+            <span class="sensor-value">${escapeHtml(co2)} ppm</span>
           </span>
           <span class="sensor-item">
             ${ICONS.meter}
-            <span class="sensor-value">${temp}°C</span>
+            <span class="sensor-value">${escapeHtml(temp)}°C</span>
           </span>
           <span class="sensor-item">
             ${ICONS.water}
-            <span class="sensor-value">${humid}%</span>
+            <span class="sensor-value">${escapeHtml(humid)}%</span>
           </span>
         </div>
       `;
@@ -298,8 +298,8 @@ export function buildDeviceCard(device, acState = {}) {
       const target = status.nebulizationEfficiency ?? '---';
       badgeHtml = on ? `<span class="status-badge on">ON</span>` : `<span class="status-badge off">OFF</span>`;
       extraHtml = `<div class="card-sensor">
-        <span class="sensor-item">${ICONS.water} <span class="sensor-value">${humidity}%</span></span>
-        <span class="sensor-item">目標 <span class="sensor-value">${target}%</span></span>
+        <span class="sensor-item">${ICONS.water} <span class="sensor-value">${escapeHtml(humidity)}%</span></span>
+        <span class="sensor-item">目標 <span class="sensor-value">${escapeHtml(target)}%</span></span>
       </div>`;
       controlsHtml = `
         <button class="ctrl-btn active-on" data-cmd="turnOn" data-id="${id}">ON</button>

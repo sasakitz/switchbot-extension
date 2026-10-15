@@ -7,6 +7,7 @@ import { buildDeviceCard } from './device-card.js';
 import { getAvailableFilters, getDeviceCategory, buildFilterTabs } from './filters.js';
 import { applyDeviceOrder, moveVisibleDevice, moveDeviceToTop } from './device-order.js';
 import { buildOrderRow } from './order-row.js';
+import { createSafeFragment } from '../utils/dom.js';
 
 // =====================================================
 // State
@@ -199,7 +200,7 @@ function updateFilterTabs() {
   const filters = getAvailableFilters(allDevices);
   // A refresh can remove the final device in the selected category.
   if (!filters.some(filter => filter.id === activeFilter)) activeFilter = 'all';
-  $('filterTabs').innerHTML = buildFilterTabs(filters, activeFilter);
+  $('filterTabs').replaceChildren(createSafeFragment(buildFilterTabs(filters, activeFilter)));
 }
 
 function renderDevices() {
@@ -218,12 +219,13 @@ function renderDevices() {
     return;
   }
 
-  grid.innerHTML = isReordering
+  const html = isReordering
     ? filtered.map((device, index) => buildOrderRow(device, {
       first: index === 0, last: index === filtered.length - 1,
       globalFirst: device.deviceId === allDevices[0]?.deviceId, saving: isSavingOrder,
     })).join('')
     : filtered.map(d => buildDeviceCard(d, acState)).join('');
+  grid.replaceChildren(createSafeFragment(html));
 }
 
 function getFilteredDevices() {
@@ -472,9 +474,7 @@ async function executeSetPosition(device, pos, slider) {
 function refreshCard(device, cardEl) {
   if (isReordering || !cardEl.isConnected) return;
   const newHtml = buildDeviceCard(device, acState);
-  const tmp = document.createElement('div');
-  tmp.innerHTML = newHtml;
-  const newCard = tmp.firstElementChild;
+  const newCard = createSafeFragment(newHtml).firstElementChild;
   cardEl.replaceWith(newCard);
   // Grid listener via delegation handles the new card automatically
 }

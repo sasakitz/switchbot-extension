@@ -12,6 +12,25 @@ const storage = await import('../utils/storage.js');
 const api = await import('../utils/api.js');
 const { buildDeviceCard } = await import('../popup/device-card.js');
 
+test('device cards escape API status text and reject injected RGB styles', () => {
+  const injected = '<img src=x onerror=alert(1)>';
+  const device = { deviceId: 'one', deviceName: 'Room' };
+  for (const deviceType of ['Meter', 'Lock', 'Plug', 'CO2 Sensor', 'Humidifier', 'Air Conditioner']) {
+    const html = buildDeviceCard({ ...device, deviceType, status: {
+      temperature: injected, humidity: injected, battery: injected,
+      electricityOfDay: injected, CO2: injected, nebulizationEfficiency: injected,
+    } });
+    assert.ok(!html.includes(injected), deviceType);
+    assert.match(html, /&lt;img/);
+  }
+  const bulb = buildDeviceCard({ ...device, deviceType: 'Color Bulb', status: {
+    color: '0,0,0);background:url(https://example.com)', brightness: injected,
+  } });
+  assert.ok(!bulb.includes('background:url'));
+  assert.ok(!bulb.includes(injected));
+  assert.match(buildDeviceCard({ ...device, deviceType: 'Color Bulb', status: { color: '1,2,255' } }), /rgb\(1,2,255\)/);
+});
+
 const requests = [];
 globalThis.fetch = async (url, options) => {
   requests.push({ url, options });

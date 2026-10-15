@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Package runtime files for Chrome Web Store; exclude listing assets and tools."""
+"""Package runtime files for Chrome Web Store and AMO; exclude listing assets and tools."""
 import argparse
 import json
 import re
