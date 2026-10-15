@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate assets, copy submission copy, and create a store-listing ZIP."""
+"""Validate assets, copy submission copy, and create a local-only store-listing ZIP."""
 import argparse
 import hashlib
 import json
@@ -40,14 +40,14 @@ for language in ['ja']:
     assert len(text) <= 132, (language, len(text))
     print(f'Short description ({language}): {len(text)} characters')
 
-public_files = set(expected) | {
+listing_files = set(expected) | {
     'README.md', 'privacy-policy.html', 'text/description-ja.txt',
     'text/short-description-ja.txt', 'text/release-notes-ja.txt', 'text/build-info.json',
     'icons/icon.svg', *{f'icons/icon{size}.png' for size in [16, 32, 48, 128]},
 }
 files = sorted(p for p in kit.rglob('*') if p.is_file() and 'source' not in p.relative_to(kit).parts
                and p.name not in ['assets-manifest.json', 'SHA256SUMS.txt']
-               and (args.include_review or p.relative_to(kit).as_posix() in public_files))
+               and (args.include_review or p.relative_to(kit).as_posix() in listing_files))
 items = [{'file': str(p.relative_to(kit)), 'bytes': p.stat().st_size,
           'sha256': hashlib.sha256(p.read_bytes()).hexdigest()} for p in files]
 (kit / 'assets-manifest.json').write_text(json.dumps({'date': '2026-10-15', 'files': items}, indent=2) + '\n')
@@ -59,3 +59,4 @@ with zipfile.ZipFile(archive, 'w', zipfile.ZIP_DEFLATED) as output:
 with zipfile.ZipFile(archive) as output:
     assert output.testzip() is None
 print(f'Validated {len(expected)} store images. Packaged {len(files) + 2} files: {archive}')
+print('Local store-submission use only. Do not upload this ZIP to GitHub releases.')
